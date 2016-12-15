@@ -3,14 +3,9 @@ import { NativeModules, AppRegistry } from 'react-native';
 
 const tag = "BackgroundJob:";
 const jobModule = NativeModules.BackgroundJob;
-var nativeJobs = jobModule.jobs;
-
+const nativeJobs = jobModule.jobs;
 var jobs = {};
-
 var globalWarning = __DEV__;
-
-console.log("Starting");
-console.log(jobModule, jobs);
 
 const BackgroundJob = {
 
@@ -52,9 +47,7 @@ const BackgroundJob = {
                 jobs[jobKey] = { registered: true, scheduled };
             }
         }
-
     },
-
 
     /**
      * Schedules a new job. 
@@ -156,16 +149,16 @@ const BackgroundJob = {
     },
 
     /**
- * Sets the global warning level
- * 
- * @param {boolean} warn
- * 
- * @example
- * import BackgroundJob from 'react-native-background-job';
- * 
- * BackgroundJob.setGlobalWarnings(false);
- * 
- */
+     * Sets the global warning level
+     * 
+     * @param {boolean} warn
+     * 
+     * @example
+     * import BackgroundJob from 'react-native-background-job';
+     * 
+     * BackgroundJob.setGlobalWarnings(false);
+     * 
+     */
     setGlobalWarnings: function (warn) {
         globalWarning = warn;
     }
