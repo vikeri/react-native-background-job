@@ -1,18 +1,18 @@
-
 {
   "name": "react-native-background-job",
   "version": "1.0.0",
-  "description": "",
+  "description": "Schedule background jobs in React Native that run your JavaScript when your app is in the background.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "react-native"
+    "react-native",
+		"background-job"
   ],
-  "author": "",
-  "license": "",
+  "author": "Viktor Eriksson <viktor.eriksson2@gmail.com>",
+  "license": "MIT",
   "peerDependencies": {
-    "react-native": "^0.37.0"
+    "react-native": "^0.36.0"
   }
 }

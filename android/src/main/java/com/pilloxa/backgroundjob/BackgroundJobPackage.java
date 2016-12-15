@@ -10,10 +10,12 @@ import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.facebook.react.bridge.JavaScriptModule;
-public class RNBackgroundJobPackage implements ReactPackage {
+
+
+public class BackgroundJobPackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-      return Arrays.<NativeModule>asList(new RNBackgroundJobModule(reactContext));
+      return Arrays.<NativeModule>asList(new BackgroundJobModule(reactContext));
     }
 
     @Override
