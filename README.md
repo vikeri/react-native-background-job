@@ -181,3 +181,7 @@ import BackgroundJob from 'react-native-background-job';
 
 BackgroundJob.setGlobalWarnings(false);
 ```
+
+## Sponsored by
+
+[![pilloxa](http://pilloxa.com/images/pilloxa-round-logo.svg)](http://pilloxa.com)
