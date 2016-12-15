@@ -2,8 +2,6 @@
 
 Schedule background jobs that run your JavaScript when your app is in the background. 
 
-
-
 The jobs will run even if the app has been closed and, by default, also persists over restarts.
 
 This library relies on  [`HeadlessJS`](https://facebook.github.io/react-native/docs/headless-js-android.html) which is currently only supported on Android.

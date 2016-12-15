@@ -31,6 +31,11 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     @Override
     public void initialize() {
         Log.d(LOG_TAG, "Initializing");
+        if (jobScheduler == null) {
+            jobScheduler = (JobScheduler) getReactApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            mJobs = jobScheduler.getAllPendingJobs();
+            mInitialized = true;
+        }
         super.initialize();
         getReactApplicationContext().addLifecycleEventListener(this);
     }
@@ -87,13 +92,15 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     private WritableArray _getAll() {
         Log.d(LOG_TAG, "GETTING ALL");
         WritableArray jobs = Arguments.createArray();
-        for (JobInfo job : mJobs) {
-            Log.d(LOG_TAG, "Fetching job " + job.getId());
-            Bundle extras = new Bundle(job.getExtras());
-            WritableMap jobMap = Arguments.fromBundle(extras);
-            boolean persisted = extras.getInt("persist") == 1;
-            jobMap.putBoolean("persist", persisted);
-            jobs.pushMap(jobMap);
+        if (mJobs != null) {
+            for (JobInfo job : mJobs) {
+                Log.d(LOG_TAG, "Fetching job " + job.getId());
+                Bundle extras = new Bundle(job.getExtras());
+                WritableMap jobMap = Arguments.fromBundle(extras);
+                boolean persisted = extras.getInt("persist") == 1;
+                jobMap.putBoolean("persist", persisted);
+                jobs.pushMap(jobMap);
+            }
         }
 
         return jobs;
@@ -116,8 +123,10 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     public Map<String, Object> getConstants() {
         Log.d(LOG_TAG, "Getting constants");
         jobScheduler = (JobScheduler) getReactApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        mJobs = jobScheduler.getAllPendingJobs();
-        mInitialized = true;
+        if (jobScheduler != null) {
+            mJobs = jobScheduler.getAllPendingJobs();
+            mInitialized = true;
+        }
         HashMap<String, Object> constants = new HashMap<>();
         constants.put("jobs", _getAll());
         return constants;
