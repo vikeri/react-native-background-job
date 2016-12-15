@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Schedule background jobs in React Native that run your JavaScript when your app is in the background.",
   "main": "index.js",
+	"repository": "https://github.com/vikeri/react-native-background-job",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

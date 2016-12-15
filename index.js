@@ -7,6 +7,8 @@ var nativeJobs = jobModule.jobs;
 
 var jobs = {};
 
+var globalWarning = __DEV__;
+
 console.log("Starting");
 console.log(jobModule, jobs);
 
@@ -19,7 +21,18 @@ const BackgroundJob = {
      * 
      * @param {Object} obj
      * @param {string} obj.jobKey A unique key for the job
-     * @param {function} obj.job The JS-function that will be run 
+     * @param {function} obj.job The JS-function that will be run
+     * 
+     * @example
+     * import BackgroundJob from 'react-native-background-job';
+     * 
+     * const backgroundJob = {
+     *  jobKey: "myJob",
+     *  job: () => console.log("Running in background")
+     * };
+     * 
+     * BackgroundJob.register(backgroundJob);
+     * 
      */
     register: function ({jobKey, job}) {
         const existingJob = jobs[jobKey];
@@ -58,13 +71,19 @@ const BackgroundJob = {
      * @example
      * import BackgroundJob from 'react-native-background-job';
      * 
-     * var backgroundJob = {
+     * const backgroundJob = {
      *  jobKey: "myJob",
-     *  job: () => { console.log("Running in background"); },
-     *  timeout: 5000
+     *  job: () => console.log("Running in background")
      * };
      * 
-     * BackgroundJob.schedule(backgroundJob);
+     * BackgroundJob.register(backgroundJob);
+     * 
+     * var backgroundSchedule = {
+     *  jobKey: "myJob",
+     *  timeout: 5000
+     * }
+     * 
+     * BackgroundJob.schedule(backgroundSchedule);
      */
     schedule: function ({jobKey, timeout, period = 900000, persist = true, warn = true}) {
 
@@ -74,7 +93,7 @@ const BackgroundJob = {
             console.error(`${tag} The job ${jobKey} has not been registered, you must register it before you can schedule it.`);
         } else {
 
-            if (savedJob.scheduled && warn && __DEV__) {
+            if (savedJob.scheduled && warn && globalWarning) {
                 console.warn(`${tag} Overwriting background job: ${jobKey}`);
             } else {
                 jobs[jobKey].scheduled = true;
@@ -95,9 +114,7 @@ const BackgroundJob = {
      * @example
      * import BackgroundJob from 'react-native-background-job';
      * 
-     * BackgroundJob.getAll({callback: (jobs) => {
-     *  console.log("Jobs:",jobs);
-     * }});
+     * BackgroundJob.getAll({callback: (jobs) => console.log("Jobs:",jobs)});
      * 
      */
     getAll: function ({callback}) {
@@ -114,10 +131,10 @@ const BackgroundJob = {
      * @example
      * import BackgroundJob from 'react-native-background-job';
      * 
-     * BackgroundJob.cancel('myJob');
+     * BackgroundJob.cancel({jobKey: 'myJob'});
      */
     cancel: function ({jobKey, warn = true}) {
-        if (__DEV__ && warn && (!jobs[jobKey] || !jobs[jobKey].scheduled)) {
+        if (warn && globalWarning && (!jobs[jobKey] || !jobs[jobKey].scheduled)) {
             console.warn(`${tag} Trying to cancel the job ${jobKey} but it is not scheduled`);
         }
         jobModule.cancel(jobKey);
@@ -136,6 +153,21 @@ const BackgroundJob = {
         jobModule.cancelAll();
         const keys = Object.keys(jobs);
         keys.map((key) => { jobs[key].scheduled = false });
+    },
+
+    /**
+ * Sets the global warning level
+ * 
+ * @param {boolean} warn
+ * 
+ * @example
+ * import BackgroundJob from 'react-native-background-job';
+ * 
+ * BackgroundJob.setGlobalWarnings(false);
+ * 
+ */
+    setGlobalWarnings: function (warn) {
+        globalWarning = warn;
     }
 
 }
