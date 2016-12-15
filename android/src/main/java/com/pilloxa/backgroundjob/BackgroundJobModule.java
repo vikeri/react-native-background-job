@@ -5,16 +5,11 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.PermissionChecker;
 import android.util.Log;
-import android.widget.Toast;
 import com.facebook.react.bridge.*;
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.cxxbridge.*;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -48,7 +43,6 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     @ReactMethod
     public void schedule(String jobKey, int timeout, int period, boolean persist) {
         int taskId = jobKey.hashCode();
-        Toast.makeText(getReactApplicationContext(), "SIKE!", Toast.LENGTH_SHORT).show();
 
         Log.v(LOG_TAG, "Scheduling: " + jobKey + " timeout: " + Integer.toString(timeout) + " period " + Integer.toString(period));
 
@@ -152,6 +146,6 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
 
     @Override
     public void onHostDestroy() {
-        Log.d(LOG_TAG, "Destroyed!");
+        Log.d(LOG_TAG, "Destroyed");
     }
 }
