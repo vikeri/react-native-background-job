@@ -4,7 +4,9 @@ Schedule background jobs that run your JavaScript when your app is in the backgr
 
 The jobs will run even if the app has been closed and, by default, also persists over restarts.
 
-This library relies on  [`HeadlessJS`](https://facebook.github.io/react-native/docs/headless-js-android.html) which is currently only supported on Android.
+This library relies on React Native's [`HeadlessJS`](https://facebook.github.io/react-native/docs/headless-js-android.html) which is currently only supported on Android.
+
+On the native side it uses [`JobScheduler`](https://developer.android.com/reference/android/app/job/JobScheduler.html) which means that the jobs can't be scheduled exactly and for Android 23+ they fire at most once per 15 minutes +-5 minutes. `JobSceduler` was used since it seemed to be the most battery efficient way of scheduling background tasks. I'm open to pull requests that implement more exact scheduling.
 
 ## Requirements
 
@@ -54,6 +56,10 @@ or
 
 
               compile project(':react-native-background-job')
+
+## Usage
+
+The jobs have to be registered each time React Native starts, this is done using the `register` function. This does not mean that the job is scheduled, it just informs React Native that this `job` function should be tied to this `jobKey`. The job is then scheduled using the `schedule` function. **The job will not fire while the app is in the foreground**. This is since the job is run on the only JavaScript thread and if running the job when app is in the foreground it would freeze the app.
 
 ## API
 
