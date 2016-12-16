@@ -17,6 +17,8 @@ On the native side it uses [`JobScheduler`](https://developer.android.com/refere
 
 -   Android
 
+Want iOS? Go in and vote for Headless JS to be implemented for iOS: [Product pains](https://productpains.com/post/react-native/headless-js-for-ios)
+
 ## Getting started
 
 `$ yarn add react-native-background-job`
