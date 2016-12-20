@@ -30,7 +30,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
 
     @Override
     public void initialize() {
-        Log.d(LOG_TAG, "Initializing");
+        Log.d(LOG_TAG, "Initializing BackgroundJob");
         if (jobScheduler == null) {
             jobScheduler = (JobScheduler) getReactApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
             mJobs = jobScheduler.getAllPendingJobs();
@@ -46,7 +46,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     }
 
     @ReactMethod
-    public void schedule(String jobKey, int timeout, int period, boolean persist) {
+    public void schedule(String jobKey, int timeout, int period, boolean persist, boolean appActive) {
         int taskId = jobKey.hashCode();
 
         Log.v(LOG_TAG, "Scheduling: " + jobKey + " timeout: " + Integer.toString(timeout) + " period " + Integer.toString(period));
@@ -71,6 +71,11 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
             }
         }
         mJobs.add(jobInfo);
+
+        if (!appActive) {
+            scheduleJobs();
+        }
+
     }
 
 
@@ -90,7 +95,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     }
 
     private WritableArray _getAll() {
-        Log.d(LOG_TAG, "GETTING ALL");
+        Log.d(LOG_TAG, "Getting all jobs");
         WritableArray jobs = Arguments.createArray();
         if (mJobs != null) {
             for (JobInfo job : mJobs) {
@@ -108,7 +113,6 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
 
     @ReactMethod
     public void getAll(Callback callback) {
-        Log.d(LOG_TAG, "RN Getting aall");
         WritableArray jobs = _getAll();
         callback.invoke(jobs);
     }
@@ -140,9 +144,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
 
     }
 
-    @Override
-    public void onHostPause() {
-        Log.d(LOG_TAG, "Pausing");
+    private void scheduleJobs() {
         for (JobInfo job : mJobs) {
             Log.d(LOG_TAG, "Sceduling job " + job.getId());
             jobScheduler.cancel(job.getId());
@@ -150,7 +152,12 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
             if (result == JobScheduler.RESULT_SUCCESS)
                 Log.d(LOG_TAG, "Job (" + job.getId() + ") scheduled successfully!");
         }
+    }
 
+    @Override
+    public void onHostPause() {
+        Log.d(LOG_TAG, "Pausing");
+        scheduleJobs();
     }
 
     @Override

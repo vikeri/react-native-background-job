@@ -1,6 +1,7 @@
 'use strict';
 import { NativeModules, AppRegistry } from 'react-native';
 
+const AppState = NativeModules.AppState;
 const tag = "BackgroundJob:";
 const jobModule = NativeModules.BackgroundJob;
 const nativeJobs = jobModule.jobs;
@@ -91,8 +92,14 @@ const BackgroundJob = {
             } else {
                 jobs[jobKey].scheduled = true;
             }
-
-            jobModule.schedule(jobKey, timeout, period, persist);
+            
+            AppState.getCurrentAppState(
+                ({app_state}) => {
+                    const appActive = app_state == "active";
+                    jobModule.schedule(jobKey, timeout, period, persist, appActive);
+                },
+                () => console.err(`${tag} Can't get Current App State`)
+            );
         }
 
 
