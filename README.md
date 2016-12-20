@@ -190,6 +190,13 @@ import BackgroundJob from 'react-native-background-job';
 BackgroundJob.setGlobalWarnings(false);
 ```
 
+## Troubleshooting
+
+### `AppState.currentState` is `"active"` when I'm running my Headless task in the background
+
+This is a [React Native issue](https://github.com/facebook/react-native/issues/11561), you can get around it by calling `NativeModules.AppState.getCurrentAppState` directly instead.
+
+
 ## Sponsored by
 
 [![pilloxa](http://pilloxa.com/images/pilloxa-round-logo.svg)](http://pilloxa.com)
