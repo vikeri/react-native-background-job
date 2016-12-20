@@ -190,6 +190,19 @@ import BackgroundJob from 'react-native-background-job';
 BackgroundJob.setGlobalWarnings(false);
 ```
 
+## Debugging
+
+If you are using Android API +25 you can manually trigger the jobs by using the following command in a terminal:
+```sh
+$ adb shell cmd jobscheduler run -f your.package jobIntId
+``` 
+`jobIntId`: is the hashed `jobKey`. Get that value by going to [Java REPL](http://www.javarepl.com/term.html) and input:
+
+```java
+"yourJobKey".hashCode();
+// 1298333557
+```
+
 ## Troubleshooting
 
 ### `AppState.currentState` is `"active"` when I'm running my Headless task in the background
