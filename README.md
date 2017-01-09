@@ -54,7 +54,7 @@ or
             include ':react-native-background-job'
             project(':react-native-background-job').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-background-job/android')
 
-3.  Insert the following lines inside the dependencies block in `android/app/build.gradle`:
+3.  Insert the following lines inside the dependencies block in `android/app/build.gradle` and bump the minSdkVersion to 21:
 
 
               compile project(':react-native-background-job')
