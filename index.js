@@ -1,5 +1,5 @@
-'use strict';
-import { NativeModules, AppRegistry } from 'react-native';
+"use strict";
+import { NativeModules, AppRegistry } from "react-native";
 
 const AppState = NativeModules.AppState;
 const tag = "BackgroundJob:";
@@ -9,8 +9,7 @@ var jobs = {};
 var globalWarning = __DEV__;
 
 const BackgroundJob = {
-
-    /**
+  /**
      * Registers jobs and the functions they should run. 
      * 
      * This has to run on each initialization of React Native. Only doing this will not start running the job. It has to be scheduled by `schedule` to start running.
@@ -30,27 +29,26 @@ const BackgroundJob = {
      * BackgroundJob.register(backgroundJob);
      * 
      */
-    register: function ({jobKey, job}) {
-        const existingJob = jobs[jobKey];
+  register: function({ jobKey, job }) {
+    const existingJob = jobs[jobKey];
 
-        if (!existingJob || !existingJob.registered) {
-            var fn = async () => {
-                job();
-            };
+    if (!existingJob || !existingJob.registered) {
+      var fn = async () => {
+        job();
+      };
 
-            AppRegistry.registerHeadlessTask(jobKey, () => fn);
+      AppRegistry.registerHeadlessTask(jobKey, () => fn);
 
-            if (existingJob) {
-                jobs[jobKey].registered = true;
-            } else {
-                const scheduledJob = nativeJobs.filter((nJob) => nJob.jobKey == jobKey);
-                const scheduled = scheduledJob[0] != undefined;
-                jobs[jobKey] = { registered: true, scheduled };
-            }
-        }
-    },
-
-    /**
+      if (existingJob) {
+        jobs[jobKey].registered = true;
+      } else {
+        const scheduledJob = nativeJobs.filter(nJob => nJob.jobKey == jobKey);
+        const scheduled = scheduledJob[0] != undefined;
+        jobs[jobKey] = { registered: true, scheduled };
+      }
+    }
+  },
+  /**
      * Schedules a new job. 
      * 
      * This only has to be run once while `register` has to be run on each initialization of React Native.
@@ -79,33 +77,30 @@ const BackgroundJob = {
      * 
      * BackgroundJob.schedule(backgroundSchedule);
      */
-    schedule: function ({jobKey, timeout, period = 900000, persist = true, warn = true}) {
+  schedule: function({ jobKey, timeout, period = 900000, persist = true, warn = true }) {
+    const savedJob = jobs[jobKey];
 
-        const savedJob = jobs[jobKey];
+    if (!savedJob) {
+      console.error(
+        `${tag} The job ${jobKey} has not been registered, you must register it before you can schedule it.`
+      );
+    } else {
+      if (savedJob.scheduled && warn && globalWarning) {
+        console.warn(`${tag} Overwriting background job: ${jobKey}`);
+      } else {
+        jobs[jobKey].scheduled = true;
+      }
 
-        if (!savedJob) {
-            console.error(`${tag} The job ${jobKey} has not been registered, you must register it before you can schedule it.`);
-        } else {
-
-            if (savedJob.scheduled && warn && globalWarning) {
-                console.warn(`${tag} Overwriting background job: ${jobKey}`);
-            } else {
-                jobs[jobKey].scheduled = true;
-            }
-            
-            AppState.getCurrentAppState(
-                ({app_state}) => {
-                    const appActive = app_state == "active";
-                    jobModule.schedule(jobKey, timeout, period, persist, appActive);
-                },
-                () => console.err(`${tag} Can't get Current App State`)
-            );
-        }
-
-
-    },
-
-    /**
+      AppState.getCurrentAppState(
+        ({ app_state }) => {
+          const appActive = app_state == "active";
+          jobModule.schedule(jobKey, timeout, period, persist, appActive);
+        },
+        () => console.err(`${tag} Can't get Current App State`)
+      );
+    }
+  },
+  /**
      * Fetches all the currently scheduled jobs
      * 
      * @param {Object} obj
@@ -117,11 +112,10 @@ const BackgroundJob = {
      * BackgroundJob.getAll({callback: (jobs) => console.log("Jobs:",jobs)});
      * 
      */
-    getAll: function ({callback}) {
-        jobModule.getAll(callback);
-    },
-
-    /**
+  getAll: function({ callback }) {
+    jobModule.getAll(callback);
+  },
+  /**
      * Cancel a specific job
      * 
      * @param {Object} obj
@@ -133,15 +127,14 @@ const BackgroundJob = {
      * 
      * BackgroundJob.cancel({jobKey: 'myJob'});
      */
-    cancel: function ({jobKey, warn = true}) {
-        if (warn && globalWarning && (!jobs[jobKey] || !jobs[jobKey].scheduled)) {
-            console.warn(`${tag} Trying to cancel the job ${jobKey} but it is not scheduled`);
-        }
-        jobModule.cancel(jobKey);
-        jobs[jobKey] ? jobs[jobKey].scheduled = false : null;
-    },
-
-    /**
+  cancel: function({ jobKey, warn = true }) {
+    if (warn && globalWarning && (!jobs[jobKey] || !jobs[jobKey].scheduled)) {
+      console.warn(`${tag} Trying to cancel the job ${jobKey} but it is not scheduled`);
+    }
+    jobModule.cancel(jobKey);
+    jobs[jobKey] ? jobs[jobKey].scheduled = false : null;
+  },
+  /**
      * Cancels all the scheduled jobs
      * 
      * @example
@@ -149,13 +142,14 @@ const BackgroundJob = {
      * 
      * BackgroundJob.cancelAll();
      */
-    cancelAll: function () {
-        jobModule.cancelAll();
-        const keys = Object.keys(jobs);
-        keys.map((key) => { jobs[key].scheduled = false });
-    },
-
-    /**
+  cancelAll: function() {
+    jobModule.cancelAll();
+    const keys = Object.keys(jobs);
+    keys.map(key => {
+      jobs[key].scheduled = false;
+    });
+  },
+  /**
      * Sets the global warning level
      * 
      * @param {boolean} warn
@@ -166,9 +160,8 @@ const BackgroundJob = {
      * BackgroundJob.setGlobalWarnings(false);
      * 
      */
-    setGlobalWarnings: function (warn) {
-        globalWarning = warn;
-    }
-
-}
+  setGlobalWarnings: function(warn) {
+    globalWarning = warn;
+  }
+};
 module.exports = BackgroundJob;

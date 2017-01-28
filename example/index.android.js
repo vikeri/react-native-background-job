@@ -4,20 +4,23 @@
  * @flow
  */
 
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import {
   AppRegistry,
   TouchableHighlight,
   StyleSheet,
   Text,
   View
-} from 'react-native';
+} from "react-native";
 
-import BackgroundJob from 'react-native-background-job';
+import BackgroundJob from "react-native-background-job";
 
 const myJobKey = "Hej";
 
-BackgroundJob.register({ jobKey: myJobKey, job: () => console.log("Background Job fired!") });
+BackgroundJob.register({
+  jobKey: myJobKey,
+  job: () => console.log("Background Job fired!")
+});
 
 export default class backtest extends Component {
   constructor(props) {
@@ -27,10 +30,11 @@ export default class backtest extends Component {
 
   getAll() {
     BackgroundJob.getAll({
-      callback: (jobs) => {
+      callback: jobs => {
         this.setState({ jobs });
         console.log("Jobs:", jobs);
-      }});
+      }
+    });
   }
 
   render() {
@@ -44,32 +48,47 @@ export default class backtest extends Component {
         </Text>
         <Text>
           Scheduled jobs:
-          {this.state.jobs.map(({jobKey}) => jobKey)}
+          {this.state.jobs.map(({ jobKey }) => jobKey)}
         </Text>
-        <TouchableHighlight style={styles.button} onPress={() => {
-          BackgroundJob.schedule({ jobKey: myJobKey, period: 5000, timeout: 5000 });
-          this.getAll();
-        } }>
+        <TouchableHighlight
+          style={styles.button}
+          onPress={() => {
+            BackgroundJob.schedule({
+              jobKey: myJobKey,
+              period: 5000,
+              timeout: 5000
+            });
+            this.getAll();
+          }}
+        >
           <Text>Schedule</Text>
         </TouchableHighlight>
-        <TouchableHighlight style={styles.button} onPress={() => {
-          BackgroundJob.cancel({ jobKey: myJobKey });
-          this.getAll();
-        } }>
+        <TouchableHighlight
+          style={styles.button}
+          onPress={() => {
+            BackgroundJob.cancel({ jobKey: myJobKey });
+            this.getAll();
+          }}
+        >
           <Text>Cancel</Text>
         </TouchableHighlight>
-        <TouchableHighlight style={styles.button} onPress={() => {
-          BackgroundJob.cancelAll();
-          this.getAll();
-        } }>
+        <TouchableHighlight
+          style={styles.button}
+          onPress={() => {
+            BackgroundJob.cancelAll();
+            this.getAll();
+          }}
+        >
           <Text>CancelAll</Text>
         </TouchableHighlight>
-        <TouchableHighlight style={styles.button} onPress={() => {
-          BackgroundJob.getAll({ callback: console.log });
-        } }>
+        <TouchableHighlight
+          style={styles.button}
+          onPress={() => {
+            BackgroundJob.getAll({ callback: console.log });
+          }}
+        >
           <Text>GetAll</Text>
         </TouchableHighlight>
-
       </View>
     );
   }
@@ -79,27 +98,15 @@ export default class backtest extends Component {
 }
 
 const styles = StyleSheet.create({
-  button: {
-    padding: 20,
-    backgroundColor: '#ccc',
-    marginBottom: 10
-  },
+  button: { padding: 20, backgroundColor: "#ccc", marginBottom: 10 },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5FCFF"
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+  welcome: { fontSize: 20, textAlign: "center", margin: 10 },
+  instructions: { textAlign: "center", color: "#333333", marginBottom: 5 }
 });
 
-AppRegistry.registerComponent('backtest', () => backtest);
+AppRegistry.registerComponent("backtest", () => backtest);
