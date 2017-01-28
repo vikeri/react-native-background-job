@@ -5,7 +5,8 @@
   "main": "index.js",
 	"repository": "https://github.com/vikeri/react-native-background-job",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "document": "documentation readme --readme-file README.md -s \"API\" -g"
   },
   "keywords": [
     "react-native",

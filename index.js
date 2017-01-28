@@ -9,6 +9,9 @@ var jobs = {};
 var globalWarning = __DEV__;
 
 const BackgroundJob = {
+  NETWORK_TYPE_UNMETERED: jobModule.UNMETERED,
+  NETWORK_TYPE_NONE: jobModule.NONE,
+  NETWORK_TYPE_ANY: jobModule.ANY,
   /**
      * Registers jobs and the functions they should run. 
      * 
@@ -59,6 +62,9 @@ const BackgroundJob = {
      * @param {number} [obj.period = 900000] - The frequency to run the job with (in ms). This number is not exact, Android may modify it to save batteries. Note: For Android > N, the minimum is 900 0000 (15 min).
      * @param {boolean} [obj.persist = true] If the job should persist over a device restart.
      * @param {boolean} [obj.warn = true] If a warning should be raised if overwriting a job that was already scheduled.
+     * @param {number} [obj.networkType = BackgroundJob.NETWORK_TYPE_NONE] Only run for specific network requirements, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.html#NETWORK_TYPE_ANY)
+     * @param {boolean} [obj.requiresCharging = false] Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean))
+     * @param {boolean} [obj.requiresDeviceIdle = false] Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean))
      * 
      * @example
      * import BackgroundJob from 'react-native-background-job';
@@ -77,7 +83,18 @@ const BackgroundJob = {
      * 
      * BackgroundJob.schedule(backgroundSchedule);
      */
-  schedule: function({ jobKey, timeout, period = 900000, persist = true, warn = true }) {
+  schedule: function(
+    {
+      jobKey,
+      timeout,
+      period = 900000,
+      persist = true,
+      warn = true,
+      networkType = this.NETWORK_TYPE_NONE,
+      requiresCharging = false,
+      requiresDeviceIdle = false
+    }
+  ) {
     const savedJob = jobs[jobKey];
 
     if (!savedJob) {
@@ -90,11 +107,19 @@ const BackgroundJob = {
       } else {
         jobs[jobKey].scheduled = true;
       }
-
       AppState.getCurrentAppState(
         ({ app_state }) => {
           const appActive = app_state == "active";
-          jobModule.schedule(jobKey, timeout, period, persist, appActive);
+          jobModule.schedule(
+            jobKey,
+            timeout,
+            period,
+            persist,
+            appActive,
+            networkType,
+            requiresCharging,
+            requiresDeviceIdle
+          );
         },
         () => console.err(`${tag} Can't get Current App State`)
       );
@@ -129,7 +154,9 @@ const BackgroundJob = {
      */
   cancel: function({ jobKey, warn = true }) {
     if (warn && globalWarning && (!jobs[jobKey] || !jobs[jobKey].scheduled)) {
-      console.warn(`${tag} Trying to cancel the job ${jobKey} but it is not scheduled`);
+      console.warn(
+        `${tag} Trying to cancel the job ${jobKey} but it is not scheduled`
+      );
     }
     jobModule.cancel(jobKey);
     jobs[jobKey] ? jobs[jobKey].scheduled = false : null;

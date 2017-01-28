@@ -19,6 +19,9 @@ import java.util.Map;
 public class BackgroundJobModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
     private String LOG_TAG = "backgroundjob";
+    private static final String NETWORK_TYPE_UNMETERED = "UNMETERED";
+    private static final String NETWORK_TYPE_NONE = "NONE";
+    private static final String NETWORK_TYPE_ANY = "ANY";
 
     private final ReactApplicationContext reactContext;
 
@@ -46,10 +49,17 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     }
 
     @ReactMethod
-    public void schedule(String jobKey, int timeout, int period, boolean persist, boolean appActive) {
+    public void schedule(String jobKey,
+                         int timeout,
+                         int period,
+                         boolean persist,
+                         boolean appActive,
+                         int networkType,
+                         boolean requiresCharging,
+                         boolean requiresDeviceIdle) {
         int taskId = jobKey.hashCode();
 
-        Log.v(LOG_TAG, "Scheduling: " + jobKey + " timeout: " + Integer.toString(timeout) + " period " + Integer.toString(period));
+        Log.v(LOG_TAG, String.format("Scheduling: %s, timeout: %s, period: %s, network type: %s, requiresCharging: %s, requiresDeviceIdle: %s", jobKey, timeout, period, networkType, requiresCharging, requiresDeviceIdle));
 
         int persistInt = persist ? 1 : 0;
 
@@ -59,10 +69,16 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         jobExtras.putInt("timeout", timeout);
         jobExtras.putInt("persist", persistInt);
         jobExtras.putInt("period", period);
+        jobExtras.putInt("networkType", networkType);
+        jobExtras.putInt("requiresCharging", requiresCharging ? 1 : 0);
+        jobExtras.putInt("requiresDeviceIdle", requiresDeviceIdle ? 1 : 0);
         JobInfo jobInfo = new JobInfo.Builder(taskId, componentName)
-                .setPeriodic(period)
                 .setExtras(jobExtras)
+                .setRequiresDeviceIdle(requiresDeviceIdle)
+                .setRequiresCharging(requiresCharging)
                 .setPersisted(persist)
+                .setPeriodic(period)
+                .setRequiredNetworkType(networkType)
                 .build();
 
         for (JobInfo iJobInfo : mJobs) {
@@ -102,8 +118,9 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
                 Log.d(LOG_TAG, "Fetching job " + job.getId());
                 Bundle extras = new Bundle(job.getExtras());
                 WritableMap jobMap = Arguments.fromBundle(extras);
-                boolean persisted = extras.getInt("persist") == 1;
-                jobMap.putBoolean("persist", persisted);
+                jobMap.putBoolean("persist", extras.getInt("persist") == 1);
+                jobMap.putBoolean("requiresCharging", extras.getInt("requiresCharging") == 1);
+                jobMap.putBoolean("requiresDeviceIdle", extras.getInt("requiresDeviceIdle") == 1);
                 jobs.pushMap(jobMap);
             }
         }
@@ -133,6 +150,9 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         }
         HashMap<String, Object> constants = new HashMap<>();
         constants.put("jobs", _getAll());
+        constants.put(NETWORK_TYPE_UNMETERED, JobInfo.NETWORK_TYPE_UNMETERED);
+        constants.put(NETWORK_TYPE_ANY, JobInfo.NETWORK_TYPE_ANY);
+        constants.put(NETWORK_TYPE_NONE, JobInfo.NETWORK_TYPE_NONE);
         return constants;
     }
 
