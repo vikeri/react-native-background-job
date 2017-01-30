@@ -61,7 +61,9 @@ or
 
 ## Usage
 
-The jobs have to be registered each time React Native starts, this is done using the `register` function. This does not mean that the job is scheduled, it just informs React Native that this `job` function should be tied to this `jobKey`. The job is then scheduled using the `schedule` function. **The job will not fire while the app is in the foreground**. This is since the job is run on the only JavaScript thread and if running the job when app is in the foreground it would freeze the app.
+The jobs have to be registered each time React Native starts, this is done using the `register` function. Since HeadlessJS does not mount any components the `register` function must be run outside of any class definitions (see [example/index.android.js](https://github.com/vikeri/react-native-background-job/blob/8b8fdb2cb4bc0907eb16a54204c85c3b7a60dfa4/example/index.android.js#L20-L23))
+
+Registering the job does not mean that the job is scheduled, it just informs React Native that this `job` function should be tied to this `jobKey`. The job is then scheduled using the `schedule` function. **The job will not fire while the app is in the foreground**. This is since the job is run on the only JavaScript thread and if running the job when app is in the foreground it would freeze the app.
 
 For a full example check out [example/index.android.js](example/index.android.js)
 
