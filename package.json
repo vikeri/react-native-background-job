@@ -14,7 +14,4 @@
   ],
   "author": "Viktor Eriksson <viktor.eriksson2@gmail.com>",
   "license": "MIT",
-  "peerDependencies": {
-    "react-native": "^0.36.0"
-  }
 }
