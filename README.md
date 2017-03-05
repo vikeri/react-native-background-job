@@ -214,6 +214,13 @@ $ adb shell cmd jobscheduler run -f your.package jobIntId
 
 ## Troubleshooting
 
+### `No task registered for key myJob`
+
+Make sure you call the `register` function at the global scope (i.e. not in any component life cycle methods (render, iDidMount etc)). Since the components are not rendered in Headless mode if you run the register function there it will not run in the background and hence the library will not find which function to run.
+
+See [example project](https://github.com/vikeri/react-native-background-job/blob/c0e4bc8e9dd692695169d6c9855d39e2ff917a61/example/index.android.js#L20-L25)
+
+
 ### `AppState.currentState` is `"active"` when I'm running my Headless task in the background
 
 This is a [React Native issue](https://github.com/facebook/react-native/issues/11561), you can get around it by calling `NativeModules.AppState.getCurrentAppState` directly instead.
