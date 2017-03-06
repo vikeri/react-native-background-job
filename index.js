@@ -1,10 +1,16 @@
 "use strict";
-import { NativeModules, AppRegistry } from "react-native";
+import { NativeModules, AppRegistry, Platform } from "react-native";
 
 const AppState = NativeModules.AppState;
 const tag = "BackgroundJob:";
-const jobModule = NativeModules.BackgroundJob;
-const nativeJobs = jobModule.jobs;
+const jobModule = Platform.select({
+  ios: {},
+  android: NativeModules.BackgroundJob
+});
+const nativeJobs = Platform.select({
+  ios: { jobs: {} },
+  android: jobModule.jobs
+});
 var jobs = {};
 var globalWarning = __DEV__;
 
@@ -15,7 +21,9 @@ const BackgroundJob = {
   /**
      * Registers jobs and the functions they should run. 
      * 
-     * This has to run on each initialization of React Native. Only doing this will not start running the job. It has to be scheduled by `schedule` to start running.
+     * This has to run on each initialization of React Native and it has to run in the global scope and not inside any
+     * component life cycle methods. See example project. Only registering the job will not start running the job. 
+     * It has to be scheduled by `schedule` to start running.
      * 
      * @param {Object} obj
      * @param {string} obj.jobKey A unique key for the job
@@ -191,4 +199,15 @@ const BackgroundJob = {
     globalWarning = warn;
   }
 };
+if (Platform.OS == "ios") {
+  Object.keys(BackgroundJob).map(v => {
+    BackgroundJob[v] = () => {
+      if (globalWarning) {
+        console.warn(
+          "react-native-background-job is not available on iOS yet. See https://github.com/vikeri/react-native-background-job#supported-platforms"
+        );
+      }
+    };
+  });
+}
 module.exports = BackgroundJob;
