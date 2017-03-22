@@ -47,7 +47,7 @@ or
 
 1.  Open up `android/app/src/main/java/[...]/MainActivity.java`
     -   Add `import com.pilloxa.backgroundjob.BackgroundJobPackage;` to the imports at the top of the file
-    -   Add `new BackgroundJobPackage()` to the list returned by the `getPackages()` method
+    -   Add `new BackgroundJobPackage()` to the list returned by the `getPackages()` method in `MainApplication.java`
 2.  Append the following lines to `android/settings.gradle`:
 
 
