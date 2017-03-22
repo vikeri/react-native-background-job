@@ -7,7 +7,7 @@
 		"test": "jest"
 	},
 	"dependencies": {
-		"react-native-background-job": "1.0.0",
+		"react-native-background-job": "^1.1.2",
 		"react": "15.4.1",
 		"react-native": "0.39.2"
 	},
