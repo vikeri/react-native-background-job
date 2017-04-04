@@ -40,8 +40,8 @@ public class HeadlessService  extends HeadlessJsTaskService {
                         .getReactNativeHost()
                         .getReactInstanceManager();
         ReactContext reactContext =
-          reactInstanceManager.getCurrentReactContext();
+                reactInstanceManager.getCurrentReactContext();
 
-        return(reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED);
+        return (reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED);
     }
 }

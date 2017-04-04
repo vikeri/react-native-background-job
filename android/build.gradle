@@ -11,7 +11,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion '25.0.0'
 // Uncomment to develop with yarn link into node_modules
 //  compileOptions.incremental = false
     defaultConfig {
