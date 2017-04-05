@@ -1,15 +1,16 @@
-
 package com.pilloxa.backgroundjob;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.util.Log;
 import com.facebook.react.bridge.*;
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.common.LifecycleState;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -26,18 +27,19 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     private final ReactApplicationContext reactContext;
 
     private List<JobInfo> mJobs;
+    private Bundle mJobBundle;
 
     private JobScheduler jobScheduler;
 
-    private boolean mInitialized = false;
+    private Intent mService;
 
     @Override
     public void initialize() {
         Log.d(LOG_TAG, "Initializing BackgroundJob");
         if (jobScheduler == null) {
-            jobScheduler = (JobScheduler) getReactApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            jobScheduler = (JobScheduler) reactContext
+                    .getSystemService(Context.JOB_SCHEDULER_SERVICE);
             mJobs = jobScheduler.getAllPendingJobs();
-            mInitialized = true;
         }
         super.initialize();
         getReactApplicationContext().addLifecycleEventListener(this);
@@ -53,25 +55,45 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
                          int timeout,
                          int period,
                          boolean persist,
-                         boolean appActive,
                          int networkType,
                          boolean requiresCharging,
-                         boolean requiresDeviceIdle) {
+                         boolean requiresDeviceIdle,
+                         boolean alwaysRunning,
+                         String title,
+                         String icon,
+                         String text) {
         int taskId = jobKey.hashCode();
 
-        Log.v(LOG_TAG, String.format("Scheduling: %s, timeout: %s, period: %s, network type: %s, requiresCharging: %s, requiresDeviceIdle: %s", jobKey, timeout, period, networkType, requiresCharging, requiresDeviceIdle));
+        Log.v(LOG_TAG,
+                String.format("Scheduling: %s, timeout: %s, period: %s, network type: %s, requiresCharging: %s, requiresDeviceIdle: %s",
+                        jobKey,
+                        timeout,
+                        period,
+                        networkType,
+                        requiresCharging,
+                        requiresDeviceIdle));
 
         int persistInt = persist ? 1 : 0;
 
         ComponentName componentName = new ComponentName(getReactApplicationContext(), BackgroundJob.class.getName());
         PersistableBundle jobExtras = new PersistableBundle();
         jobExtras.putString("jobKey", jobKey);
+        jobExtras.putString("notificationTitle", title);
+        jobExtras.putString("notificationIcon", icon);
+        jobExtras.putString("notificationText", text);
         jobExtras.putInt("timeout", timeout);
         jobExtras.putInt("persist", persistInt);
         jobExtras.putInt("period", period);
         jobExtras.putInt("networkType", networkType);
         jobExtras.putInt("requiresCharging", requiresCharging ? 1 : 0);
         jobExtras.putInt("requiresDeviceIdle", requiresDeviceIdle ? 1 : 0);
+        jobExtras.putInt("alwaysRunning", alwaysRunning ? 1 : 0);
+        if (alwaysRunning) {
+            mJobBundle = new Bundle(jobExtras);
+        } else {
+            mJobBundle = null;
+        }
+
         JobInfo jobInfo = new JobInfo.Builder(taskId, componentName)
                 .setExtras(jobExtras)
                 .setRequiresDeviceIdle(requiresDeviceIdle)
@@ -88,8 +110,9 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         }
         mJobs.add(jobInfo);
 
-        if (!appActive) {
+        if (!isAppInForeground()) {
             scheduleJobs();
+            startForegroundJob();
         }
 
     }
@@ -101,6 +124,9 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         Log.d(LOG_TAG, "Cancelling job: " + jobKey + " (" + taskId + ")");
         jobScheduler.cancel(taskId);
         mJobs = jobScheduler.getAllPendingJobs();
+        if (mJobBundle != null && mJobBundle.getString("jobKey") == jobKey) {
+            cancelService();
+        }
     }
 
     @ReactMethod
@@ -108,6 +134,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         Log.d(LOG_TAG, "Cancelling all jobs");
         jobScheduler.cancelAll();
         mJobs = jobScheduler.getAllPendingJobs();
+        cancelService();
     }
 
     private WritableArray _getAll() {
@@ -121,6 +148,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
                 jobMap.putBoolean("persist", extras.getInt("persist") == 1);
                 jobMap.putBoolean("requiresCharging", extras.getInt("requiresCharging") == 1);
                 jobMap.putBoolean("requiresDeviceIdle", extras.getInt("requiresDeviceIdle") == 1);
+                jobMap.putBoolean("alwaysRunning", extras.getInt("alwaysRunning") == 1);
                 jobs.pushMap(jobMap);
             }
         }
@@ -146,7 +174,6 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         jobScheduler = (JobScheduler) getReactApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
         if (jobScheduler != null) {
             mJobs = jobScheduler.getAllPendingJobs();
-            mInitialized = true;
         }
         HashMap<String, Object> constants = new HashMap<>();
         constants.put("jobs", _getAll());
@@ -156,13 +183,30 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         return constants;
     }
 
+
+    private void cancelService() {
+        stopService();
+        mJobBundle = null;
+    }
+
+    private void stopService() {
+        if (mService != null) {
+            Log.d(LOG_TAG, "Stopping Service");
+            reactContext.stopService(mService);
+            mService = null;
+        }
+    }
+
+
     @Override
     public void onHostResume() {
-        Log.d(LOG_TAG, "Woke up");
+//        Log.d(LOG_TAG, "Woke up");
+        stopService();
         mJobs = jobScheduler.getAllPendingJobs();
         jobScheduler.cancelAll();
 
     }
+
 
     private void scheduleJobs() {
         for (JobInfo job : mJobs) {
@@ -174,14 +218,29 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         }
     }
 
+    private void startForegroundJob() {
+        if (mJobBundle != null) {
+            Intent service = new Intent(reactContext, HeadlessService.class);
+            service.putExtras(mJobBundle);
+            mService = service;
+            reactContext.startService(service);
+        }
+    }
+
     @Override
     public void onHostPause() {
-        Log.d(LOG_TAG, "Pausing");
+//        Log.d(LOG_TAG, "Pausing");
+        startForegroundJob();
         scheduleJobs();
     }
 
     @Override
     public void onHostDestroy() {
-        Log.d(LOG_TAG, "Destroyed");
+        getReactApplicationContext().removeLifecycleEventListener(this);
+//        Log.d(LOG_TAG, "Destroyed");
+    }
+
+    private boolean isAppInForeground() {
+        return (reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED);
     }
 }

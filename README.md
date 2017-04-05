@@ -75,7 +75,9 @@ For a full example check out [example/index.android.js](example/index.android.js
 
 Registers jobs and the functions they should run. 
 
-This has to run on each initialization of React Native. Only doing this will not start running the job. It has to be scheduled by `schedule` to start running.
+This has to run on each initialization of React Native and it has to run in the global scope and not inside any
+component life cycle methods. See example project. Only registering the job will not start running the job. 
+It has to be scheduled by `schedule` to start running.
 
 **Parameters**
 
@@ -113,6 +115,10 @@ This only has to be run once while `register` has to be run on each initializati
     -   `obj.networkType` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)?** Only run for specific network requirements, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.html#NETWORK_TYPE_ANY) (optional, default `BackgroundJob.NETWORK_TYPE_NONE`)
     -   `obj.requiresCharging` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean)) (optional, default `false`)
     -   `obj.requiresDeviceIdle` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean)) (optional, default `false`)
+    -   `obj.alwaysRunning` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** Creates a foreground service that will keep the app alive forever. Suitable for music playback etc. Will always show a notification. (optional, default `false`)
+    -   `obj.notificationTitle` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The title of the persistent notification when `alwaysRunning`
+    -   `obj.notificationText` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The text of the persistent notification when `alwaysRunning`
+    -   `obj.notificationIcon` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The icon string (in drawable) of the persistent notification when `alwaysRunning`
 
 **Examples**
 
@@ -219,7 +225,6 @@ $ adb shell cmd jobscheduler run -f your.package jobIntId
 Make sure you call the `register` function at the global scope (i.e. not in any component life cycle methods (render, iDidMount etc)). Since the components are not rendered in Headless mode if you run the register function there it will not run in the background and hence the library will not find which function to run.
 
 See [example project](https://github.com/vikeri/react-native-background-job/blob/c0e4bc8e9dd692695169d6c9855d39e2ff917a61/example/index.android.js#L20-L25)
-
 
 ### `AppState.currentState` is `"active"` when I'm running my Headless task in the background
 

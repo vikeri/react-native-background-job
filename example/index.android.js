@@ -7,8 +7,11 @@
 import React, { Component } from "react";
 import {
   AppRegistry,
+  AsyncStorage,
+  ScrollView,
   TouchableHighlight,
   StyleSheet,
+  DeviceEventEmitter,
   Text,
   View
 } from "react-native";
@@ -17,86 +20,118 @@ import BackgroundJob from "react-native-background-job";
 
 const myJobKey = "Hej";
 
-// This has to run outside of the component definition since the component is never 
+// This has to run outside of the component definition since the component is never
 // instantiated when running in headless mode
 BackgroundJob.register({
   jobKey: myJobKey,
-  job: () => console.log("Background Job fired!")
+  job: hej
 });
+var counter = 0;
+const dateString = new Date().toISOString();
+function hej() {
+  console.log("Running in BG");
+  const lastDate = new Date().toISOString();
+  // AsyncStorage.setItem(dateString, lastDate, console.log);
+}
 
 export default class backtest extends Component {
+  getLocal() {
+    console.log("Getting local");
+    // AsyncStorage.getAllKeys((err, keys) => {
+    //   console.log("ASYNC", this);
+    //   console.log("KEYS:");
+    //   console.log(keys);
+    //   keys.map(key =>
+    //     AsyncStorage.getItem(key, (err, val) => {
+    //       console.log(val);
+    //       let ob = this.state.dates;
+    //       ob[key] = val;
+    //       this.setState({ dates: ob });
+    //     }));
+    // });
+  }
   constructor(props) {
     super(props);
-    this.state = { jobs: [] };
+    this.state = {
+      jobs: [],
+      dates: {}
+    };
   }
 
   getAll() {
     BackgroundJob.getAll({
       callback: jobs => {
         this.setState({ jobs });
-        console.log("Jobs:", jobs);
       }
     });
   }
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Testing BackgroundJob
-        </Text>
-        <Text style={styles.instructions}>
-          Try connecting the device to the developer console, schedule an event and then quit the app.
-        </Text>
-        <Text>
-          Scheduled jobs:
-          {this.state.jobs.map(({ jobKey }) => jobKey)}
-        </Text>
-        <TouchableHighlight
-          style={styles.button}
-          onPress={() => {
-            BackgroundJob.schedule({
-              jobKey: myJobKey,
-              period: 5000,
-              timeout: 5000,
-              networkType: BackgroundJob.NETWORK_TYPE_UNMETERED
-            });
-            this.getAll();
-          }}
-        >
-          <Text>Schedule</Text>
-        </TouchableHighlight>
-        <TouchableHighlight
-          style={styles.button}
-          onPress={() => {
-            BackgroundJob.cancel({ jobKey: myJobKey });
-            this.getAll();
-          }}
-        >
-          <Text>Cancel</Text>
-        </TouchableHighlight>
-        <TouchableHighlight
-          style={styles.button}
-          onPress={() => {
-            BackgroundJob.cancelAll();
-            this.getAll();
-          }}
-        >
-          <Text>CancelAll</Text>
-        </TouchableHighlight>
-        <TouchableHighlight
-          style={styles.button}
-          onPress={() => {
-            BackgroundJob.getAll({ callback: console.log });
-          }}
-        >
-          <Text>GetAll</Text>
-        </TouchableHighlight>
-      </View>
+      <ScrollView>
+        <View style={styles.container}>
+          <Text style={styles.welcome}>
+            Testing BackgroundJob Now
+          </Text>
+          <Text style={styles.instructions}>
+            {Object.keys(this.state.dates).map(date => {
+              return "start: " +
+                date.substr(11, 8) +
+                "\nstop: " +
+                this.state.dates[date].substr(11, 8) +
+                "\n";
+            })})}
+            Try connecting the device to the developer console, schedule an event and then quit the app.
+          </Text>
+          <Text>
+            Scheduled jobs:
+            {this.state.jobs.map(({ jobKey }) => jobKey)}
+          </Text>
+          <TouchableHighlight
+            style={styles.button}
+            onPress={() => {
+              BackgroundJob.schedule({
+                jobKey: myJobKey,
+                period: 5000,
+                alwaysRunning: true,
+                timeout: 0
+              });
+              this.getAll();
+            }}
+          >
+            <Text>Schedule</Text>
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={styles.button}
+            onPress={() => {
+              AsyncStorage.clear();
+            }}
+          >
+            <Text>Clear Storage</Text>
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={styles.button}
+            onPress={() => {
+              BackgroundJob.cancelAll();
+              this.getAll();
+            }}
+          >
+            <Text>CancelAll</Text>
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={styles.button}
+            onPress={this.getAll.bind(this)}
+          >
+            <Text>GetAll</Text>
+          </TouchableHighlight>
+        </View>
+      </ScrollView>
     );
   }
   componentDidMount() {
     this.getAll();
+    // setInterval(this.getLocal.bind(this), 1000);
+    this.getLocal();
   }
 }
 
