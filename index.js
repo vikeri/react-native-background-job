@@ -1,16 +1,16 @@
 "use strict";
 import { NativeModules, AppRegistry, Platform } from "react-native";
 
+// NOTE: This library is *not* currently supported on:
+// - iOS, any version
+// - Android, any version lower than 21 (5.0)
+const isSupported = Platform.OS === 'android' && Platform.Version >= 21
+
 const AppState = NativeModules.AppState;
 const tag = "BackgroundJob:";
-const jobModule = Platform.select({
-  ios: {},
-  android: NativeModules.BackgroundJob
-});
-const nativeJobs = Platform.select({
-  ios: { jobs: {} },
-  android: jobModule.jobs
-});
+const jobModule = isSupported ? NativeModules.BackgroundJob : {}
+const nativeJobs = isSupported ? jobModule.jobs : { jobs: [] }
+
 var jobs = {};
 var globalWarning = __DEV__;
 
@@ -18,6 +18,9 @@ const BackgroundJob = {
   NETWORK_TYPE_UNMETERED: jobModule.UNMETERED,
   NETWORK_TYPE_NONE: jobModule.NONE,
   NETWORK_TYPE_ANY: jobModule.ANY,
+
+  isSupported,
+
   /**
      * Registers jobs and the functions they should run. 
      * 
@@ -199,12 +202,17 @@ const BackgroundJob = {
     globalWarning = warn;
   }
 };
-if (Platform.OS == "ios") {
+
+if (!isSupported) {
+  const versionMessage = Platform.OS === 'ios'
+    ? 'iOS'
+    : 'versions of Android lower than 21 (5.0)'
+
   Object.keys(BackgroundJob).map(v => {
     BackgroundJob[v] = () => {
       if (globalWarning) {
         console.warn(
-          "react-native-background-job is not available on iOS yet. See https://github.com/vikeri/react-native-background-job#supported-platforms"
+          `react-native-background-job is not available on ${versionMessage} yet. See https://github.com/vikeri/react-native-background-job#supported-platforms`
         );
       }
     };

@@ -11,11 +11,10 @@ On the native side it uses [`JobScheduler`](https://developer.android.com/refere
 ## Requirements
 
 -   RN 0.36+
--   Android API 21+
 
 ## Supported platforms
 
--   Android
+-   Android (API 21+)
 
 Want iOS? Go in and vote for Headless JS to be implemented for iOS: [Product pains](https://productpains.com/post/react-native/headless-js-for-ios)
 
@@ -45,9 +44,9 @@ or
 
 #### Android
 
-1.  Open up `android/app/src/main/java/[...]/MainActivity.java`
+1.  Open up `android/app/src/main/java/[...]/MainApplication.java`
     -   Add `import com.pilloxa.backgroundjob.BackgroundJobPackage;` to the imports at the top of the file
-    -   Add `new BackgroundJobPackage()` to the list returned by the `getPackages()` method in `MainApplication.java`
+    -   Add `new BackgroundJobPackage()` to the list returned by the `getPackages()` method
 2.  Append the following lines to `android/settings.gradle`:
 
 
