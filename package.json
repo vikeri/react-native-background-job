@@ -6,6 +6,7 @@
   "repository": "https://github.com/vikeri/react-native-background-job",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "precommit": "lint-staged",
     "document": "documentation readme --readme-file README.md -s \"API\" -g"
   },
   "keywords": [
@@ -16,5 +17,19 @@
   "license": "MIT",
   "peerDependencies": {
     "react-native": ">= 0.36.0"
+  },
+  "devDependencies": {
+    "husky": "^0.13.3",
+    "lint-staged": "^3.4.0"
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "git add"
+    ],
+    "index.js": [
+      "npm run document",
+      "git add"
+    ]
   }
 }
