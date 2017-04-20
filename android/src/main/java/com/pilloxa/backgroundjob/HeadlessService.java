@@ -123,9 +123,8 @@ public class HeadlessService extends HeadlessJsTaskService {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
-        if (null == intent || null == intent.getAction ()) {
-            String source = null == intent ? "intent" : "action";
-            Log.e (LOG_TAG, source + " was null, flags=" + flags + " bits=" + Integer.toBinaryString (flags));
+        if (null == intent) {
+            Log.e (LOG_TAG, "intent was null, flags=" + flags + " bits=" + Integer.toBinaryString (flags));
             return START_STICKY;
         }
         if (mReactContext == null) {
