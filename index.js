@@ -101,22 +101,20 @@ const BackgroundJob = {
      * 
      * BackgroundJob.schedule(backgroundSchedule);
      */
-  schedule: function(
-    {
-      jobKey,
-      timeout,
-      period = 900000,
-      persist = true,
-      warn = true,
-      networkType = this.NETWORK_TYPE_NONE,
-      requiresCharging = false,
-      requiresDeviceIdle = false,
-      alwaysRunning = false,
-      notificationTitle,
-      notificationText,
-      notificationIcon
-    }
-  ) {
+  schedule: function({
+    jobKey,
+    timeout,
+    period = 900000,
+    persist = true,
+    warn = true,
+    networkType = this.NETWORK_TYPE_NONE,
+    requiresCharging = false,
+    requiresDeviceIdle = false,
+    alwaysRunning = false,
+    notificationTitle,
+    notificationText,
+    notificationIcon
+  }) {
     const savedJob = jobs[jobKey];
 
     if (!savedJob) {
