@@ -65,13 +65,17 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         int taskId = jobKey.hashCode();
 
         Log.v(LOG_TAG,
-                String.format("Scheduling: %s, timeout: %s, period: %s, network type: %s, requiresCharging: %s, requiresDeviceIdle: %s",
+                String.format("Scheduling: %s, timeout: %s, period: %s, network type: %s, requiresCharging: %s, requiresDeviceIdle: %s, alwaysRunning: %s, notificationTitle: %s, notificationText %s, notificationIcon: %s",
                         jobKey,
                         timeout,
                         period,
                         networkType,
                         requiresCharging,
-                        requiresDeviceIdle));
+                        requiresDeviceIdle,
+                        alwaysRunning,
+                        title,
+                        text,
+                        icon));
 
         int persistInt = persist ? 1 : 0;
 

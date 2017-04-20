@@ -92,7 +92,7 @@ public class HeadlessService extends HeadlessJsTaskService {
             PendingIntent pendingIntent = PendingIntent.getActivity(mReactContext, 0, notificationIntent, 0);
             String packageName = mReactContext.getPackageName();
             Log.d(LOG_TAG, packageName);
-            String iconId = intent.getStringExtra("notificationId");
+            String iconId = intent.getStringExtra("notificationIcon");
             String title = intent.getStringExtra("notificationTitle");
             String text = intent.getStringExtra("notificationText");
             String type = iconId != null ? "drawable" : "mipmap";
@@ -123,6 +123,11 @@ public class HeadlessService extends HeadlessJsTaskService {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
+        if (null == intent || null == intent.getAction ()) {
+            String source = null == intent ? "intent" : "action";
+            Log.e (LOG_TAG, source + " was null, flags=" + flags + " bits=" + Integer.toBinaryString (flags));
+            return START_STICKY;
+        }
         if (mReactContext == null) {
             setReactContext(null);
         }
