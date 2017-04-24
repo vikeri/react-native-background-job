@@ -6,7 +6,11 @@ The jobs will run even if the app has been closed and, by default, also persists
 
 This library relies on React Native's [`HeadlessJS`](https://facebook.github.io/react-native/docs/headless-js-android.html) which is currently only supported on Android.
 
-On the native side it uses [`JobScheduler`](https://developer.android.com/reference/android/app/job/JobScheduler.html) which means that the jobs can't be scheduled exactly and for Android 23+ they fire at most once per 15 minutes +-5 minutes. `JobSceduler` was used since it seemed to be the most battery efficient way of scheduling background tasks. I'm open to pull requests that implement more exact scheduling.
+On the native side it uses either [`JobScheduler`](https://developer.android.com/reference/android/app/job/JobScheduler.html) or a Foreground Service.
+
+- JobScheduler (default): The jobs can't be scheduled exactly and for Android 23+ they fire at most once per 15 minutes +-5 minutes. `JobSceduler` is the most battery efficient way of scheduling background tasks. 
+
+- Foreground Service: Activated by setting `alwaysRunning` to `true`. This will show a notification which allows the app to run indefinitely without (almost) ever being killed by the system. This means that the intervals for triggering the jobs are much more exact and it can also be used for persistent tasks such as playing music. Currently only one background job can be `alwaysRunning`, it won't throw any errors if you add more but it will only schedule one job.
 
 ## Requirements
 
