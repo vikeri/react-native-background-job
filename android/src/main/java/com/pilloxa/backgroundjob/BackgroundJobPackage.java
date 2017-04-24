@@ -1,4 +1,3 @@
-
 package com.pilloxa.backgroundjob;
 
 import java.util.Arrays;

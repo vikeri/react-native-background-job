@@ -1,11 +1,12 @@
 {
   "name": "react-native-background-job",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Schedule background jobs in React Native that run your JavaScript when your app is in the background.",
   "main": "index.js",
   "repository": "https://github.com/vikeri/react-native-background-job",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "precommit": "lint-staged",
     "document": "documentation readme --readme-file README.md -s \"API\" -g"
   },
   "keywords": [
@@ -16,5 +17,20 @@
   "license": "MIT",
   "peerDependencies": {
     "react-native": ">= 0.36.0"
+  },
+  "devDependencies": {
+    "husky": "^0.13.3",
+    "lint-staged": "^3.4.0",
+    "prettier": "^1.2.2"
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "git add"
+    ],
+    "index.js": [
+      "npm run document",
+      "git add"
+    ]
   }
 }

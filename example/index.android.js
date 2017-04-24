@@ -17,7 +17,7 @@ import BackgroundJob from "react-native-background-job";
 
 const myJobKey = "Hej";
 
-// This has to run outside of the component definition since the component is never 
+// This has to run outside of the component definition since the component is never
 // instantiated when running in headless mode
 BackgroundJob.register({
   jobKey: myJobKey,

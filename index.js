@@ -1,5 +1,10 @@
 "use strict";
-import { NativeModules, AppRegistry, Platform } from "react-native";
+import {
+  NativeModules,
+  AppRegistry,
+  Platform,
+  DeviceEventEmitter
+} from "react-native";
 
 const AppState = NativeModules.AppState;
 const tag = "BackgroundJob:";
@@ -49,13 +54,14 @@ const BackgroundJob = {
       };
 
       AppRegistry.registerHeadlessTask(jobKey, () => fn);
+      DeviceEventEmitter.addListener("RNBackgroundJob", job);
 
       if (existingJob) {
         jobs[jobKey].registered = true;
       } else {
         const scheduledJob = nativeJobs.filter(nJob => nJob.jobKey == jobKey);
         const scheduled = scheduledJob[0] != undefined;
-        jobs[jobKey] = { registered: true, scheduled };
+        jobs[jobKey] = { registered: true, scheduled, job };
       }
     }
   },
@@ -73,7 +79,11 @@ const BackgroundJob = {
      * @param {number} [obj.networkType = BackgroundJob.NETWORK_TYPE_NONE] Only run for specific network requirements, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.html#NETWORK_TYPE_ANY)
      * @param {boolean} [obj.requiresCharging = false] Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean))
      * @param {boolean} [obj.requiresDeviceIdle = false] Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean))
-     * 
+     * @param {boolean} [obj.alwaysRunning = false] Creates a foreground service that will keep the app alive forever. Suitable for music playback etc. Will always show a notification.
+     * @param {string} obj.notificationTitle The title of the persistent notification when `alwaysRunning`
+     * @param {string} obj.notificationText The text of the persistent notification when `alwaysRunning`
+     * @param {string} obj.notificationIcon The icon string (in drawable) of the persistent notification when `alwaysRunning`
+     *  
      * @example
      * import BackgroundJob from 'react-native-background-job';
      * 
@@ -91,18 +101,20 @@ const BackgroundJob = {
      * 
      * BackgroundJob.schedule(backgroundSchedule);
      */
-  schedule: function(
-    {
-      jobKey,
-      timeout,
-      period = 900000,
-      persist = true,
-      warn = true,
-      networkType = this.NETWORK_TYPE_NONE,
-      requiresCharging = false,
-      requiresDeviceIdle = false
-    }
-  ) {
+  schedule: function({
+    jobKey,
+    timeout,
+    period = 900000,
+    persist = true,
+    warn = true,
+    networkType = this.NETWORK_TYPE_NONE,
+    requiresCharging = false,
+    requiresDeviceIdle = false,
+    alwaysRunning = false,
+    notificationTitle,
+    notificationText,
+    notificationIcon
+  }) {
     const savedJob = jobs[jobKey];
 
     if (!savedJob) {
@@ -115,21 +127,18 @@ const BackgroundJob = {
       } else {
         jobs[jobKey].scheduled = true;
       }
-      AppState.getCurrentAppState(
-        ({ app_state }) => {
-          const appActive = app_state == "active";
-          jobModule.schedule(
-            jobKey,
-            timeout,
-            period,
-            persist,
-            appActive,
-            networkType,
-            requiresCharging,
-            requiresDeviceIdle
-          );
-        },
-        () => console.err(`${tag} Can't get Current App State`)
+      jobModule.schedule(
+        jobKey,
+        timeout,
+        period,
+        persist,
+        networkType,
+        requiresCharging,
+        requiresDeviceIdle,
+        alwaysRunning,
+        notificationTitle,
+        notificationIcon,
+        notificationText
       );
     }
   },
@@ -167,7 +176,7 @@ const BackgroundJob = {
       );
     }
     jobModule.cancel(jobKey);
-    jobs[jobKey] ? jobs[jobKey].scheduled = false : null;
+    jobs[jobKey] ? (jobs[jobKey].scheduled = false) : null;
   },
   /**
      * Cancels all the scheduled jobs
