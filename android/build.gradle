@@ -13,7 +13,7 @@ android {
     compileSdkVersion 23
     buildToolsVersion '25.0.0'
 // Uncomment to develop with yarn link into node_modules
-    compileOptions.incremental = false
+//    compileOptions.incremental = false
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 23
