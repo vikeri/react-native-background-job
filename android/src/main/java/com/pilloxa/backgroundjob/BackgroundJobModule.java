@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.util.Log;
+import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.*;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.common.LifecycleState;
@@ -16,6 +18,8 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.facebook.react.common.ApplicationHolder.getApplication;
 
 public class BackgroundJobModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
@@ -245,6 +249,13 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     }
 
     private boolean isAppInForeground() {
+        final ReactInstanceManager reactInstanceManager =
+                ((ReactApplication) getApplication())
+                        .getReactNativeHost()
+                        .getReactInstanceManager();
+        ReactContext reactContext =
+                reactInstanceManager.getCurrentReactContext();
+
         return (reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED);
     }
 }
