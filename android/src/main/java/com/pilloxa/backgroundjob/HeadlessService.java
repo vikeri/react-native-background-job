@@ -13,6 +13,7 @@ import android.util.Log;
  * Created by viktor on 2016-12-13.
  */
 
+import com.facebook.react.ReactApplication;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.HeadlessJsTaskService;
 import com.facebook.react.bridge.WritableMap;
@@ -124,7 +125,7 @@ public class HeadlessService extends HeadlessJsTaskService {
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         if (null == intent) {
-            Log.e (LOG_TAG, "intent was null, flags=" + flags + " bits=" + Integer.toBinaryString (flags));
+            Log.e(LOG_TAG, "intent was null, flags=" + flags + " bits=" + Integer.toBinaryString(flags));
             return START_STICKY;
         }
         if (mReactContext == null) {
@@ -212,6 +213,13 @@ public class HeadlessService extends HeadlessJsTaskService {
     }
 
     private boolean isAppInForeground() {
-        return (mReactContext != null && mReactContext.getLifecycleState() == LifecycleState.RESUMED);
+        final ReactInstanceManager reactInstanceManager =
+                ((ReactApplication) getApplication())
+                        .getReactNativeHost()
+                        .getReactInstanceManager();
+        ReactContext reactContext =
+                reactInstanceManager.getCurrentReactContext();
+
+        return (reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED);
     }
 }
