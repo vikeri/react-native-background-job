@@ -21,8 +21,8 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class HeadlessService extends HeadlessJsTaskService {
-    private static final String LOG_TAG = HeadlessService.class.getSimpleName();
+public abstract class AbstractHeadlessService extends HeadlessJsTaskService {
+    private static final String LOG_TAG = AbstractHeadlessService.class.getSimpleName();
 
     private Timer mTimer;
     private Notification mNotification;

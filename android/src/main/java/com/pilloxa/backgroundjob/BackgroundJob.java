@@ -7,13 +7,13 @@ import android.os.Bundle;
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 
-/** Simple {@link JobService} that will start our {@link HeadlessService}. */
+/** Simple {@link JobService} that will start our {@link AbstractHeadlessService}. */
 public class BackgroundJob extends JobService {
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
         Bundle bundle = new Bundle(jobParameters.getExtras());
         Context reactContext = getApplicationContext();
-        Intent service = new Intent(reactContext, HeadlessService.class);
+        Intent service = new Intent(reactContext, AbstractHeadlessService.class);
         service.putExtras(bundle);
         reactContext.startService(service);
         return false; // No more work going on in this service
