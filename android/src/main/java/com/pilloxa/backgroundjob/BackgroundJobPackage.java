@@ -1,6 +1,5 @@
 package com.pilloxa.backgroundjob;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,7 +13,7 @@ import com.facebook.react.bridge.JavaScriptModule;
 public class BackgroundJobPackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-      return Arrays.<NativeModule>asList(new BackgroundJobModule(reactContext));
+      return Collections.<NativeModule>singletonList(new BackgroundJobModule(reactContext));
     }
 
     @Override

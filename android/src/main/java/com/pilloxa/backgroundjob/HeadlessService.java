@@ -9,14 +9,9 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-/**
- * Created by viktor on 2016-12-13.
- */
-
 import com.facebook.react.ReactApplication;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.HeadlessJsTaskService;
-import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.jstasks.HeadlessJsTaskConfig;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
@@ -27,8 +22,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class HeadlessService extends HeadlessJsTaskService {
+    private static final String LOG_TAG = HeadlessService.class.getSimpleName();
 
-    private String LOG_TAG = "backgroundjob";
     private Timer mTimer;
     private Notification mNotification;
     private ReactInstanceManager reactInstanceManager;

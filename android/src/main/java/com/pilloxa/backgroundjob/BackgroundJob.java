@@ -1,29 +1,26 @@
 package com.pilloxa.backgroundjob;
 
-import android.app.job.JobParameters;
-import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-/**
- * Created by viktor on 2016-12-13.
- */
+import com.firebase.jobdispatcher.JobParameters;
+import com.firebase.jobdispatcher.JobService;
 
+/** Simple {@link JobService} that will start our {@link HeadlessService}. */
 public class BackgroundJob extends JobService {
     @Override
-    public boolean onStartJob(JobParameters params) {
-        Bundle bundle = new Bundle(params.getExtras());
+    public boolean onStartJob(JobParameters jobParameters) {
+        Bundle bundle = new Bundle(jobParameters.getExtras());
         Context reactContext = getApplicationContext();
         Intent service = new Intent(reactContext, HeadlessService.class);
         service.putExtras(bundle);
         reactContext.startService(service);
-        return false;
+        return false; // No more work going on in this service
     }
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        return false;
+        return true; // Yes, we should retry this job again
     }
-
 }
