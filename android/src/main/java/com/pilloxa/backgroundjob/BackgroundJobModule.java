@@ -5,10 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.facebook.react.ReactApplication;
-import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.*;
-import com.facebook.react.common.LifecycleState;
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
@@ -20,8 +17,8 @@ import com.firebase.jobdispatcher.Trigger;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.facebook.react.common.ApplicationHolder.getApplication;
 import static com.firebase.jobdispatcher.FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS;
+import static com.pilloxa.backgroundjob.Utils.isAppInForeground;
 
 class BackgroundJobModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     private static final String LOG_TAG = BackgroundJobModule.class.getSimpleName();
@@ -115,7 +112,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
     private void scheduleForegroundJob(@NonNull Bundle jobBundle) {
         cancelCurrentForegroundJob();
         mForegroundJobBundle.putAll(jobBundle);
-        if (!isAppInForeground()) {
+        if (!isAppInForeground(getReactApplicationContext())) {
             resumeForegroundJob();
         }
     }
@@ -127,7 +124,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
      *                          scheduled foreground job.
      */
     private void resumeForegroundJob() {
-        if (isAppInForeground()) {
+        if (isAppInForeground(getReactApplicationContext())) {
             throw new RuntimeException("Can't start always running background job while RN app is in foreground.");
         } else if (mForegroundJobBundle.isEmpty()) {
             throw new RuntimeException("Foreground job not properly scheduled, starting bundle is empty.");
@@ -204,16 +201,5 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
     @Override
     public void onHostDestroy() {
         getReactApplicationContext().removeLifecycleEventListener(this);
-    }
-
-    private boolean isAppInForeground() {
-        final ReactInstanceManager reactInstanceManager =
-                ((ReactApplication) getApplication())
-                        .getReactNativeHost()
-                        .getReactInstanceManager();
-        ReactContext reactContext =
-                reactInstanceManager.getCurrentReactContext();
-
-        return (reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED);
     }
 }

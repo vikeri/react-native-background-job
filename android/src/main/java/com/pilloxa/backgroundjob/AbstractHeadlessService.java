@@ -9,17 +9,17 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.facebook.react.ReactApplication;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.HeadlessJsTaskService;
 import com.facebook.react.jstasks.HeadlessJsTaskConfig;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.common.LifecycleState;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static com.pilloxa.backgroundjob.Utils.isAppInForeground;
 
 public abstract class AbstractHeadlessService extends HeadlessJsTaskService {
     private static final String LOG_TAG = AbstractHeadlessService.class.getSimpleName();
@@ -40,7 +40,7 @@ public abstract class AbstractHeadlessService extends HeadlessJsTaskService {
     }
 
     private void sendEvent() {
-        if (isAppInForeground()) {
+        if (isAppInForeground(this)) {
 //            Log.d(LOG_TAG, "APP IS IN FOREGROUND");
             cancelTimer();
             stopSelf();
@@ -129,7 +129,7 @@ public abstract class AbstractHeadlessService extends HeadlessJsTaskService {
 
 //        Log.d(LOG_TAG, "onStartCommand");
 
-        if (isAppInForeground()) {
+        if (isAppInForeground(this)) {
 //            Log.d(LOG_TAG, "APP IS IN FOREGROUND");
             cancelTimer();
             stopSelf();
@@ -141,11 +141,9 @@ public abstract class AbstractHeadlessService extends HeadlessJsTaskService {
         HeadlessJsTaskConfig taskConfig = getTaskConfig(intent);
         if (taskConfig != null) {
             if (mReactContext == null || !alwaysRunning) {
-                if (!isAppInForeground()) {
+                if (isAppInForeground(this)) {
 //                    Log.d(LOG_TAG, "Starting task!");
                     startTask(taskConfig);
-                } else {
-//                    Log.d(LOG_TAG, "Not starting task, still in bg");
                 }
             }
         } else {
@@ -205,16 +203,5 @@ public abstract class AbstractHeadlessService extends HeadlessJsTaskService {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    private boolean isAppInForeground() {
-        final ReactInstanceManager reactInstanceManager =
-                ((ReactApplication) getApplication())
-                        .getReactNativeHost()
-                        .getReactInstanceManager();
-        ReactContext reactContext =
-                reactInstanceManager.getCurrentReactContext();
-
-        return (reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED);
     }
 }
