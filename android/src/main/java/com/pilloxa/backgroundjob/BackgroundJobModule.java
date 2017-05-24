@@ -29,7 +29,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
     private FirebaseJobDispatcher mJobDispatcher;
 
     @NonNull
-    private final Bundle mForegroundJobBundle = new Bundle();
+    private Bundle mForegroundJobBundle = Bundle.EMPTY;
 
     @Override
     public void initialize() {
@@ -111,7 +111,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
      */
     private void scheduleForegroundJob(@NonNull Bundle jobBundle) {
         cancelCurrentForegroundJob();
-        mForegroundJobBundle.putAll(jobBundle);
+        mForegroundJobBundle = new Bundle(jobBundle);
         if (!isAppInForeground(getReactApplicationContext())) {
             resumeForegroundJob();
         }
@@ -149,7 +149,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
      */
     private void cancelCurrentForegroundJob() {
         ForegroundHeadlessService.stop(getReactApplicationContext());
-        mForegroundJobBundle.clear();
+        mForegroundJobBundle = Bundle.EMPTY;
     }
 
 
