@@ -16,38 +16,34 @@ const nativeJobs = Platform.select({
   ios: { jobs: {} },
   android: jobModule.jobs
 });
-var jobs = {};
 var globalWarning = __DEV__;
 
 const BackgroundJob = {
   NETWORK_TYPE_UNMETERED: jobModule.UNMETERED,
-  NETWORK_TYPE_NONE: jobModule.NONE,
   NETWORK_TYPE_ANY: jobModule.ANY,
   /**
-     * Registers jobs and the functions they should run. 
-     * 
+     * Registers jobs and the functions they should run.
+     *
      * This has to run on each initialization of React Native and it has to run in the global scope and not inside any
-     * component life cycle methods. See example project. Only registering the job will not start running the job. 
+     * component life cycle methods. See example project. Only registering the job will not start running the job.
      * It has to be scheduled by `schedule` to start running.
-     * 
+     *
      * @param {Object} obj
      * @param {string} obj.jobKey A unique key for the job
      * @param {function} obj.job The JS-function that will be run
-     * 
+     *
      * @example
      * import BackgroundJob from 'react-native-background-job';
-     * 
+     *
      * const backgroundJob = {
      *  jobKey: "myJob",
      *  job: () => console.log("Running in background")
      * };
-     * 
+     *
      * BackgroundJob.register(backgroundJob);
-     * 
+     *
      */
   register: function({ jobKey, job }) {
-    const existingJob = jobs[jobKey];
-
     if (!existingJob || !existingJob.registered) {
       var fn = async () => {
         job();
@@ -66,10 +62,10 @@ const BackgroundJob = {
     }
   },
   /**
-     * Schedules a new job. 
-     * 
+     * Schedules a new job.
+     *
      * This only has to be run once while `register` has to be run on each initialization of React Native.
-     * 
+     *
      * @param {Object} obj
      * @param {string} obj.jobKey A unique key for the job
      * @param {number} obj.timeout How long the JS job may run before being terminated by Android (in ms).
@@ -83,22 +79,22 @@ const BackgroundJob = {
      * @param {string} obj.notificationTitle The title of the persistent notification when `alwaysRunning`
      * @param {string} obj.notificationText The text of the persistent notification when `alwaysRunning`
      * @param {string} obj.notificationIcon The icon string (in drawable) of the persistent notification when `alwaysRunning`
-     *  
+     *
      * @example
      * import BackgroundJob from 'react-native-background-job';
-     * 
+     *
      * const backgroundJob = {
      *  jobKey: "myJob",
      *  job: () => console.log("Running in background")
      * };
-     * 
+     *
      * BackgroundJob.register(backgroundJob);
-     * 
+     *
      * var backgroundSchedule = {
      *  jobKey: "myJob",
      *  timeout: 5000
      * }
-     * 
+     *
      * BackgroundJob.schedule(backgroundSchedule);
      */
   schedule: function({
@@ -144,29 +140,29 @@ const BackgroundJob = {
   },
   /**
      * Fetches all the currently scheduled jobs
-     * 
+     *
      * @param {Object} obj
      * @param {function(Array)} obj.callback A list of all the scheduled jobs will be passed to the callback
-     * 
+     *
      * @example
      * import BackgroundJob from 'react-native-background-job';
-     * 
+     *
      * BackgroundJob.getAll({callback: (jobs) => console.log("Jobs:",jobs)});
-     * 
+     *
      */
   getAll: function({ callback }) {
     jobModule.getAll(callback);
   },
   /**
      * Cancel a specific job
-     * 
+     *
      * @param {Object} obj
      * @param {string} obj.jobKey The unique key for the job
      * @param {boolean} [obj.warn = true] If one tries to cancel a job that has not been scheduled it will warn
-     * 
+     *
      * @example
      * import BackgroundJob from 'react-native-background-job';
-     * 
+     *
      * BackgroundJob.cancel({jobKey: 'myJob'});
      */
   cancel: function({ jobKey, warn = true }) {
@@ -180,10 +176,10 @@ const BackgroundJob = {
   },
   /**
      * Cancels all the scheduled jobs
-     * 
+     *
      * @example
      * import BackgroundJob from 'react-native-background-job';
-     * 
+     *
      * BackgroundJob.cancelAll();
      */
   cancelAll: function() {
@@ -195,14 +191,14 @@ const BackgroundJob = {
   },
   /**
      * Sets the global warning level
-     * 
+     *
      * @param {boolean} warn
-     * 
+     *
      * @example
      * import BackgroundJob from 'react-native-background-job';
-     * 
+     *
      * BackgroundJob.setGlobalWarnings(false);
-     * 
+     *
      */
   setGlobalWarnings: function(warn) {
     globalWarning = warn;
