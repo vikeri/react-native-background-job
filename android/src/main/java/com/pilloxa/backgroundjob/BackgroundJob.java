@@ -5,12 +5,23 @@ import android.os.Bundle;
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 
-/** Simple {@link JobService} that will start our {@link AbstractHeadlessService}. */
 public class BackgroundJob extends JobService {
+    private ReactNativeEventStarter reactNativeEventStarter;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        reactNativeEventStarter = new ReactNativeEventStarter(this);
+    }
+
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        Bundle bundle = new Bundle(jobParameters.getExtras());
-        BackgroundHeadlessService.start(this, bundle);
+        Bundle jobBundle = jobParameters.getExtras();
+        if (jobBundle != null) {
+            reactNativeEventStarter.trigger(jobBundle);
+        } else {
+            throw new RuntimeException("No job parameters provided for job:" + jobParameters.getTag());
+        }
         return false; // No more work going on in this service
     }
 
