@@ -5,7 +5,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.facebook.react.bridge.*;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
@@ -18,9 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.firebase.jobdispatcher.FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS;
-import static com.pilloxa.backgroundjob.Utils.isAppInForeground;
 
-class BackgroundJobModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
+class BackgroundJobModule extends ReactContextBaseJavaModule {
     private static final String LOG_TAG = BackgroundJobModule.class.getSimpleName();
 
     private static final String NETWORK_TYPE_UNMETERED = "UNMETERED";
@@ -38,7 +39,6 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
         if (mJobDispatcher == null) {
             mJobDispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(getReactApplicationContext()));
         }
-        getReactApplicationContext().addLifecycleEventListener(this);
     }
 
     BackgroundJobModule(ReactApplicationContext reactContext) {
@@ -73,23 +73,31 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
         if (alwaysRunning) {
             scheduleForegroundJob(jobBundle);
         } else {
-            Job.Builder jobBuilder = mJobDispatcher.newJobBuilder()
-                    .setService(BackgroundJob.class)
-                    .setTag(jobKey)
-                    .setTrigger(Trigger.executionWindow(period, period))
-                    .setLifetime(persist ? Lifetime.FOREVER : Lifetime.UNTIL_NEXT_BOOT)
-                    .addConstraint(networkType)
-                    .setRecurring(true)
-                    .setReplaceCurrent(true)
-                    .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR);
-            if (requiresCharging) {
-                jobBuilder.addConstraint(Constraint.DEVICE_CHARGING);
-            }
-            if (mJobDispatcher.schedule(jobBuilder.build()) == SCHEDULE_RESULT_SUCCESS) {
-                Log.d(LOG_TAG, "Successfully scheduled: " + jobKey);
-            } else {
-                Log.e(LOG_TAG, "Failed to schedule: " + jobKey);
-            }
+            scheduleBackgroundJob(jobKey, period, persist, networkType, requiresCharging, jobBundle);
+        }
+    }
+
+    /**
+     * Schedule a new background job that will be triggered via {@link FirebaseJobDispatcher}.
+     */
+    private void scheduleBackgroundJob(String jobKey, int period, boolean persist, int networkType, boolean requiresCharging, Bundle jobBundle) {
+        Job.Builder jobBuilder = mJobDispatcher.newJobBuilder()
+                .setService(BackgroundJob.class)
+                .setExtras(jobBundle)
+                .setTag(jobKey)
+                .setTrigger(Trigger.executionWindow(period, period))
+                .setLifetime(persist ? Lifetime.FOREVER : Lifetime.UNTIL_NEXT_BOOT)
+                .addConstraint(networkType)
+                .setRecurring(true)
+                .setReplaceCurrent(true)
+                .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR);
+        if (requiresCharging) {
+            jobBuilder.addConstraint(Constraint.DEVICE_CHARGING);
+        }
+        if (mJobDispatcher.schedule(jobBuilder.build()) == SCHEDULE_RESULT_SUCCESS) {
+            Log.d(LOG_TAG, "Successfully scheduled: " + jobKey);
+        } else {
+            Log.e(LOG_TAG, "Failed to schedule: " + jobKey);
         }
     }
 
@@ -138,20 +146,5 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
         constants.put(NETWORK_TYPE_UNMETERED, Constraint.ON_UNMETERED_NETWORK);
         constants.put(NETWORK_TYPE_ANY, Constraint.ON_ANY_NETWORK);
         return constants;
-    }
-
-    @Override
-    public void onHostResume() {
-        // do nothing for now
-    }
-
-    @Override
-    public void onHostPause() {
-        // do nothing for now
-    }
-
-    @Override
-    public void onHostDestroy() {
-        getReactApplicationContext().removeLifecycleEventListener(this);
     }
 }
