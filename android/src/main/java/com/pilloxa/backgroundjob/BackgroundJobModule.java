@@ -57,19 +57,6 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
                          String title,
                          String icon,
                          String text) {
-        Log.v(LOG_TAG,
-                String.format("Scheduling: %s, timeout: %s, period: %s, network type: %s, requiresCharging: %s, requiresDeviceIdle: %s, alwaysRunning: %s, notificationTitle: %s, notificationText %s, notificationIcon: %s",
-                        jobKey,
-                        timeout,
-                        period,
-                        networkType,
-                        requiresCharging,
-                        requiresDeviceIdle,
-                        alwaysRunning,
-                        title,
-                        text,
-                        icon));
-
         final Bundle jobBundle = new Bundle();
         jobBundle.putString("jobKey", jobKey);
         jobBundle.putString("notificationTitle", title);
@@ -112,43 +99,11 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
     private void scheduleForegroundJob(@NonNull Bundle jobBundle) {
         cancelCurrentForegroundJob();
         mForegroundJobBundle = new Bundle(jobBundle);
-        if (!isAppInForeground(getReactApplicationContext())) {
-            resumeForegroundJob();
-        }
+        ForegroundJobService.start(getReactApplicationContext(), mForegroundJobBundle);
     }
 
-    /**
-     * Used to resume a previously scheduled always running {@link ForegroundHeadlessService}.
-     *
-     * @throws RuntimeException if the app if already in foreground or if there was not previously
-     *                          scheduled foreground job.
-     */
-    private void resumeForegroundJob() {
-        if (isAppInForeground(getReactApplicationContext())) {
-            throw new RuntimeException("Can't start always running background job while RN app is in foreground.");
-        } else if (mForegroundJobBundle.isEmpty()) {
-            throw new RuntimeException("Foreground job not properly scheduled, starting bundle is empty.");
-        } else {
-            ForegroundHeadlessService.start(getReactApplicationContext(), mForegroundJobBundle);
-        }
-    }
-
-    /**
-     * Used to temporary pause the existing {@link ForegroundHeadlessService}.
-     * Nothing will happen if there isn't any. After paused, {@link #resumeForegroundJob()} could be
-     * used to start the same job.
-     */
-    private void pauseForegroundJob() {
-        ForegroundHeadlessService.stop(getReactApplicationContext());
-    }
-
-    /**
-     * Completely cancel the currently running {@link ForegroundHeadlessService}. After this,
-     * {@link #resumeForegroundJob()} could not be called, use {@link #scheduleForegroundJob(Bundle)}
-     * instead.
-     */
     private void cancelCurrentForegroundJob() {
-        ForegroundHeadlessService.stop(getReactApplicationContext());
+        ForegroundJobService.stop(getReactApplicationContext());
         mForegroundJobBundle = Bundle.EMPTY;
     }
 
@@ -187,15 +142,12 @@ class BackgroundJobModule extends ReactContextBaseJavaModule implements Lifecycl
 
     @Override
     public void onHostResume() {
-        pauseForegroundJob();
+        // do nothing for now
     }
-
 
     @Override
     public void onHostPause() {
-        if (!mForegroundJobBundle.isEmpty()) {
-            resumeForegroundJob();
-        }
+        // do nothing for now
     }
 
     @Override
