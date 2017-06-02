@@ -9,7 +9,7 @@
 	"dependencies": {
 		"react": "16.0.0-alpha.6",
 		"react-native": "0.43.0",
-		"react-native-background-job": "1.2.0"
+		"react-native-background-job": "file:../"
 	},
 	"devDependencies": {
 		"babel-jest": "17.0.2",
