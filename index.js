@@ -72,7 +72,7 @@ const BackgroundJob = {
      * @param {number} [obj.period = 900000] - The frequency to run the job with (in ms). This number is not exact, Android may modify it to save batteries. Note: For Android > N, the minimum is 900 0000 (15 min).
      * @param {boolean} [obj.persist = true] If the job should persist over a device restart.
      * @param {boolean} [obj.warn = true] If a warning should be raised if overwriting a job that was already scheduled.
-     * @param {number} [obj.networkType = BackgroundJob.NETWORK_TYPE_NONE] Only run for specific network requirements, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.html#NETWORK_TYPE_ANY)
+     * @param {number} [obj.networkType = BackgroundJob.NETWORK_TYPE_ANY] Only run for specific network requirements, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.html#NETWORK_TYPE_ANY)
      * @param {boolean} [obj.requiresCharging = false] Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean))
      * @param {boolean} [obj.requiresDeviceIdle = false] Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean))
      * @param {boolean} [obj.alwaysRunning = false] Creates a foreground service that will keep the app alive forever. Suitable for music playback etc. Will always show a notification.
@@ -103,7 +103,7 @@ const BackgroundJob = {
     period = 900000,
     persist = true,
     warn = true,
-    networkType = this.NETWORK_TYPE_NONE,
+    networkType = this.NETWORK_TYPE_ANY,
     requiresCharging = false,
     requiresDeviceIdle = false,
     alwaysRunning = false,
@@ -137,21 +137,6 @@ const BackgroundJob = {
         notificationText
       );
     }
-  },
-  /**
-     * Fetches all the currently scheduled jobs
-     *
-     * @param {Object} obj
-     * @param {function(Array)} obj.callback A list of all the scheduled jobs will be passed to the callback
-     *
-     * @example
-     * import BackgroundJob from 'react-native-background-job';
-     *
-     * BackgroundJob.getAll({callback: (jobs) => console.log("Jobs:",jobs)});
-     *
-     */
-  getAll: function({ callback }) {
-    jobModule.getAll(callback);
   },
   /**
      * Cancel a specific job
