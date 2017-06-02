@@ -12,10 +12,7 @@ const jobModule = Platform.select({
   ios: {},
   android: NativeModules.BackgroundJob
 });
-const nativeJobs = Platform.select({
-  ios: { jobs: {} },
-  android: jobModule.jobs
-});
+const jobs = {};
 var globalWarning = __DEV__;
 
 const BackgroundJob = {
@@ -44,6 +41,8 @@ const BackgroundJob = {
      *
      */
   register: function({ jobKey, job }) {
+    const existingJob = jobs[jobKey];
+
     if (!existingJob || !existingJob.registered) {
       var fn = async () => {
         job();
@@ -55,9 +54,7 @@ const BackgroundJob = {
       if (existingJob) {
         jobs[jobKey].registered = true;
       } else {
-        const scheduledJob = nativeJobs.filter(nJob => nJob.jobKey == jobKey);
-        const scheduled = scheduledJob[0] != undefined;
-        jobs[jobKey] = { registered: true, scheduled, job };
+        jobs[jobKey] = { registered: true, job };
       }
     }
   },
@@ -118,11 +115,6 @@ const BackgroundJob = {
         `${tag} The job ${jobKey} has not been registered, you must register it before you can schedule it.`
       );
     } else {
-      if (savedJob.scheduled && warn && globalWarning) {
-        console.warn(`${tag} Overwriting background job: ${jobKey}`);
-      } else {
-        jobs[jobKey].scheduled = true;
-      }
       jobModule.schedule(
         jobKey,
         timeout,
@@ -151,13 +143,13 @@ const BackgroundJob = {
      * BackgroundJob.cancel({jobKey: 'myJob'});
      */
   cancel: function({ jobKey, warn = true }) {
-    if (warn && globalWarning && (!jobs[jobKey] || !jobs[jobKey].scheduled)) {
+    if (warn && globalWarning && (!jobs[jobKey] || !jobs[jobKey].registered)) {
       console.warn(
-        `${tag} Trying to cancel the job ${jobKey} but it is not scheduled`
+        `${tag} Trying to cancel the job ${jobKey} but it is not even registered`
       );
     }
+    // TODO: Add callback to the cancel method
     jobModule.cancel(jobKey);
-    jobs[jobKey] ? (jobs[jobKey].scheduled = false) : null;
   },
   /**
      * Cancels all the scheduled jobs
@@ -170,9 +162,6 @@ const BackgroundJob = {
   cancelAll: function() {
     jobModule.cancelAll();
     const keys = Object.keys(jobs);
-    keys.map(key => {
-      jobs[key].scheduled = false;
-    });
   },
   /**
      * Sets the global warning level
