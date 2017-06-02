@@ -30,15 +30,6 @@ export default class backtest extends Component {
     this.state = { jobs: [] };
   }
 
-  getAll() {
-    BackgroundJob.getAll({
-      callback: jobs => {
-        this.setState({ jobs });
-        console.log("Jobs:", jobs);
-      }
-    });
-  }
-
   render() {
     return (
       <View style={styles.container}>
@@ -47,10 +38,6 @@ export default class backtest extends Component {
         </Text>
         <Text style={styles.instructions}>
           Try connecting the device to the developer console, schedule an event and then quit the app.
-        </Text>
-        <Text>
-          Scheduled jobs:
-          {this.state.jobs.map(({ jobKey }) => jobKey)}
         </Text>
         <TouchableHighlight
           style={styles.button}
@@ -61,7 +48,6 @@ export default class backtest extends Component {
               timeout: 5000,
               networkType: BackgroundJob.NETWORK_TYPE_UNMETERED
             });
-            this.getAll();
           }}
         >
           <Text>Schedule</Text>
@@ -70,7 +56,6 @@ export default class backtest extends Component {
           style={styles.button}
           onPress={() => {
             BackgroundJob.cancel({ jobKey: myJobKey });
-            this.getAll();
           }}
         >
           <Text>Cancel</Text>
@@ -79,24 +64,12 @@ export default class backtest extends Component {
           style={styles.button}
           onPress={() => {
             BackgroundJob.cancelAll();
-            this.getAll();
           }}
         >
           <Text>CancelAll</Text>
         </TouchableHighlight>
-        <TouchableHighlight
-          style={styles.button}
-          onPress={() => {
-            BackgroundJob.getAll({ callback: console.log });
-          }}
-        >
-          <Text>GetAll</Text>
-        </TouchableHighlight>
       </View>
     );
-  }
-  componentDidMount() {
-    this.getAll();
   }
 }
 
