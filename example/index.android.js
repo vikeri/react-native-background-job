@@ -39,18 +39,36 @@ export default class backtest extends Component {
         <Text style={styles.instructions}>
           Try connecting the device to the developer console, schedule an event and then quit the app.
         </Text>
+        <Text>
+          Scheduled jobs:
+          {this.state.jobs.map(({ jobKey }) => jobKey)}
+        </Text>
         <TouchableHighlight
           style={styles.button}
           onPress={() => {
             BackgroundJob.schedule({
               jobKey: myJobKey,
-              period: 5000,
-              timeout: 5000,
-              networkType: BackgroundJob.NETWORK_TYPE_UNMETERED
+              period: 10,
+              timeout: 10,
+              networkType: BackgroundJob.NETWORK_TYPE_ANY
             });
           }}
         >
           <Text>Schedule</Text>
+        </TouchableHighlight>
+        <TouchableHighlight
+          style={styles.button}
+          onPress={() => {
+            BackgroundJob.schedule({
+              jobKey: myJobKey,
+              period: 10,
+              timeout: 10,
+              networkType: BackgroundJob.NETWORK_TYPE_ANY,
+              alwaysRunning: true
+            });
+          }}
+        >
+          <Text>Schedule always running job</Text>
         </TouchableHighlight>
         <TouchableHighlight
           style={styles.button}
