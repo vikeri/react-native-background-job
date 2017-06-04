@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.facebook.react.HeadlessJsTaskService;
 import com.facebook.react.ReactApplication;
@@ -18,6 +19,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import javax.annotation.Nullable;
 
 class ReactNativeEventStarter {
+    private static final String LOG_TAG = ReactNativeEventStarter.class.getSimpleName();
     private final ReactInstanceManager reactInstanceManager;
     private final Context context;
 
@@ -27,6 +29,7 @@ class ReactNativeEventStarter {
     }
 
     public void trigger(@NonNull Bundle jobBundle) {
+        Log.d(LOG_TAG, "trigger() called with: jobBundle = [" + jobBundle + "]");
         if (isAppInForeground()) {
             emitJobEvent(jobBundle);
         } else {
@@ -35,6 +38,7 @@ class ReactNativeEventStarter {
     }
 
     private void emitJobEvent(Bundle jobBundle) {
+        Log.d(LOG_TAG, "emitJobEvent() called with: jobBundle = [" + jobBundle + "]");
         WritableMap map = Arguments.fromBundle(jobBundle);
         //noinspection ConstantConditions - nullability is checked in isAppInForeground
         getReactContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
@@ -42,17 +46,20 @@ class ReactNativeEventStarter {
     }
 
     public static class MyHeadlessJsTaskService extends HeadlessJsTaskService {
+        private static final String LOG_TAG = MyHeadlessJsTaskService.class.getSimpleName();
         @Nullable
         @Override
         protected HeadlessJsTaskConfig getTaskConfig(Intent intent) {
+            Log.d(LOG_TAG, "getTaskConfig() called with: intent = [" + intent + "]");
             return new HeadlessJsTaskConfig(intent.getStringExtra("jobKey"),
                     Arguments.fromBundle(intent.getExtras()));
         }
 
         public static void start(Context context, Bundle jobBundle) {
+            Log.d(LOG_TAG, "start() called with: context = [" + context + "], jobBundle = [" + jobBundle + "]");
             Intent starter = new Intent(context, MyHeadlessJsTaskService.class);
             starter.putExtras(jobBundle);
-            context.startActivity(starter);
+            context.startService(starter);
         }
     }
 

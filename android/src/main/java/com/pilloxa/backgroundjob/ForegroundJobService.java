@@ -8,15 +8,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 public class ForegroundJobService extends Service {
+    private static final String LOG_TAG = ForegroundJobService.class.getSimpleName();
     private static final int NOTIFICATION_ID = 1094979487;
     private ReactNativeEventStarter reactNativeEventStarter;
 
-    private final Timer mTimer = new Timer();
+    @Nullable
+    private Timer mTimer;
 
 
     @Override
@@ -27,6 +31,7 @@ public class ForegroundJobService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(LOG_TAG, "onStartCommand() called with: intent = [" + intent + "], flags = [" + flags + "], startId = [" + startId + "]");
         Notification notification = buildNotification(intent.getExtras());
         scheduleTimedEvent(intent.getExtras());
 
@@ -35,7 +40,9 @@ public class ForegroundJobService extends Service {
     }
 
     private void scheduleTimedEvent(final Bundle jobBundle) {
+        Log.d(LOG_TAG, "scheduleTimedEvent() called with: jobBundle = [" + jobBundle + "]");
         cancelTimedEvent();
+        mTimer = new Timer();
         int period = jobBundle.getInt("period", 15000);
         final TimerTask mTimerTask = new TimerTask() {
             @Override
@@ -43,7 +50,7 @@ public class ForegroundJobService extends Service {
                 reactNativeEventStarter.trigger(jobBundle);
             }
         };
-        mTimer.schedule(mTimerTask, period, period);
+        mTimer.schedule(mTimerTask, TimeUnit.SECONDS.toMillis(period), TimeUnit.SECONDS.toMillis(period));
     }
 
     private Notification buildNotification(Bundle jobBundle) {
@@ -67,8 +74,11 @@ public class ForegroundJobService extends Service {
     }
 
     private void cancelTimedEvent() {
-        mTimer.cancel();
-        mTimer.purge();
+        if (mTimer != null) {
+            Log.d(LOG_TAG, "cancelTimedEvent() called");
+            mTimer.cancel();
+            mTimer.purge();
+        }
     }
 
     @Nullable

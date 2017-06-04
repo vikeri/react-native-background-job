@@ -70,6 +70,8 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
         jobBundle.putInt("requiresDeviceIdle", requiresDeviceIdle ? 1 : 0);
         jobBundle.putInt("alwaysRunning", alwaysRunning ? 1 : 0);
 
+        Log.d(LOG_TAG, "Scheduling job with:" + jobBundle.toString());
+
         if (alwaysRunning) {
             scheduleForegroundJob(jobBundle);
         } else {
