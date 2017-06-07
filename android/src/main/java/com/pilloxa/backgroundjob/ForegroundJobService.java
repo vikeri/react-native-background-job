@@ -1,5 +1,6 @@
 package com.pilloxa.backgroundjob;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -99,10 +100,34 @@ public class ForegroundJobService extends Service {
         return null;
     }
 
-    public static void start(Context context, Bundle jobBundle) {
-        Intent starter = new Intent(context, ForegroundJobService.class);
-        starter.putExtras(jobBundle);
-        context.startService(starter);
+    public static boolean schedule(Context context, Bundle jobBundle) {
+        final boolean override = jobBundle.getBoolean("override", true);
+        final boolean isRunning = isRunning(context);
+
+        final boolean shouldSchedule;
+        if (override && isRunning) {
+            stop(context);
+            shouldSchedule = true;
+        } else {
+            shouldSchedule = !isRunning;
+        }
+
+        if (shouldSchedule) {
+            Intent starter = new Intent(context, ForegroundJobService.class);
+            starter.putExtras(jobBundle);
+            return context.startService(starter) != null;
+        }
+        return false;
+    }
+
+    public static boolean isRunning(Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (ForegroundJobService.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void stop(Context context) {

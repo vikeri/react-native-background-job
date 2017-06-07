@@ -50,6 +50,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
                          int timeout,
                          int period,
                          boolean persist,
+                         boolean override,
                          int networkType,
                          boolean requiresCharging,
                          boolean requiresDeviceIdle,
@@ -64,6 +65,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
         jobBundle.putString("notificationText", text);
         jobBundle.putInt("timeout", timeout);
         jobBundle.putInt("persist", persist ? 1 : 0);
+        jobBundle.putBoolean("override", override);
         jobBundle.putInt("period", period);
         jobBundle.putInt("networkType", networkType);
         jobBundle.putInt("requiresCharging", requiresCharging ? 1 : 0);
@@ -75,14 +77,14 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
         if (alwaysRunning) {
             scheduleForegroundJob(jobBundle);
         } else {
-            scheduleBackgroundJob(jobKey, period, persist, networkType, requiresCharging, jobBundle);
+            scheduleBackgroundJob(jobKey, period, persist, override, networkType, requiresCharging, jobBundle);
         }
     }
 
     /**
      * Schedule a new background job that will be triggered via {@link FirebaseJobDispatcher}.
      */
-    private void scheduleBackgroundJob(String jobKey, int period, boolean persist, int networkType, boolean requiresCharging, Bundle jobBundle) {
+    private void scheduleBackgroundJob(String jobKey, int period, boolean persist, boolean override, int networkType, boolean requiresCharging, Bundle jobBundle) {
         Job.Builder jobBuilder = mJobDispatcher.newJobBuilder()
                 .setService(BackgroundJob.class)
                 .setExtras(jobBundle)
@@ -91,7 +93,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
                 .setLifetime(persist ? Lifetime.FOREVER : Lifetime.UNTIL_NEXT_BOOT)
                 .addConstraint(networkType)
                 .setRecurring(true)
-                .setReplaceCurrent(true)
+                .setReplaceCurrent(override)
                 .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR);
         if (requiresCharging) {
             jobBuilder.addConstraint(Constraint.DEVICE_CHARGING);
@@ -104,12 +106,14 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
     }
 
     /**
-     * Will fully schedule (cancel the old and start a new one) always running foreground job.
+     * Will fully schedule (cancel the old and schedule a new one) always running foreground job.
      */
     private void scheduleForegroundJob(@NonNull Bundle jobBundle) {
-        cancelCurrentForegroundJob();
-        mForegroundJobBundle = new Bundle(jobBundle);
-        ForegroundJobService.start(getReactApplicationContext(), mForegroundJobBundle);
+        final Bundle foregroundJobBundle = new Bundle(jobBundle);
+        final boolean scheduled = ForegroundJobService.schedule(getReactApplicationContext(), foregroundJobBundle);
+        if (scheduled) {
+            mForegroundJobBundle = foregroundJobBundle;
+        }
     }
 
     private void cancelCurrentForegroundJob() {
