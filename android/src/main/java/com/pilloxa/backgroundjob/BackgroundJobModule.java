@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -19,6 +20,7 @@ import com.firebase.jobdispatcher.Trigger;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.firebase.jobdispatcher.FirebaseJobDispatcher.CANCEL_RESULT_SUCCESS;
 import static com.firebase.jobdispatcher.FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS;
 
 class BackgroundJobModule extends ReactContextBaseJavaModule {
@@ -57,7 +59,8 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
                          boolean alwaysRunning,
                          String title,
                          String icon,
-                         String text) {
+                         String text,
+                         Callback callback) {
         final Bundle jobBundle = new Bundle();
         jobBundle.putString("jobKey", jobKey);
         jobBundle.putString("notificationTitle", title);
@@ -74,17 +77,19 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
 
         Log.d(LOG_TAG, "Scheduling job with:" + jobBundle.toString());
 
+        final boolean sheduled;
         if (alwaysRunning) {
-            scheduleForegroundJob(jobBundle);
+            sheduled = scheduleForegroundJob(jobBundle);
         } else {
-            scheduleBackgroundJob(jobKey, period, persist, override, networkType, requiresCharging, jobBundle);
+            sheduled = scheduleBackgroundJob(jobKey, period, persist, override, networkType, requiresCharging, jobBundle);
         }
+        callback.invoke(sheduled);
     }
 
     /**
      * Schedule a new background job that will be triggered via {@link FirebaseJobDispatcher}.
      */
-    private void scheduleBackgroundJob(String jobKey, int period, boolean persist, boolean override, int networkType, boolean requiresCharging, Bundle jobBundle) {
+    private boolean scheduleBackgroundJob(String jobKey, int period, boolean persist, boolean override, int networkType, boolean requiresCharging, Bundle jobBundle) {
         Job.Builder jobBuilder = mJobDispatcher.newJobBuilder()
                 .setService(BackgroundJob.class)
                 .setExtras(jobBundle)
@@ -100,43 +105,51 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
         }
         if (mJobDispatcher.schedule(jobBuilder.build()) == SCHEDULE_RESULT_SUCCESS) {
             Log.d(LOG_TAG, "Successfully scheduled: " + jobKey);
+            return true;
         } else {
             Log.e(LOG_TAG, "Failed to schedule: " + jobKey);
+            return false;
         }
     }
 
     /**
      * Will fully schedule (cancel the old and schedule a new one) always running foreground job.
+     *
+     * @return true if there is a scheduled foreground job
      */
-    private void scheduleForegroundJob(@NonNull Bundle jobBundle) {
+    private boolean scheduleForegroundJob(@NonNull Bundle jobBundle) {
         final Bundle foregroundJobBundle = new Bundle(jobBundle);
         final boolean scheduled = ForegroundJobService.schedule(getReactApplicationContext(), foregroundJobBundle);
         if (scheduled) {
             mForegroundJobBundle = foregroundJobBundle;
         }
+        return !mForegroundJobBundle.isEmpty();
     }
 
-    private void cancelCurrentForegroundJob() {
-        ForegroundJobService.stop(getReactApplicationContext());
+    private boolean cancelCurrentForegroundJob() {
         mForegroundJobBundle = Bundle.EMPTY;
+        return ForegroundJobService.stop(getReactApplicationContext());
     }
 
 
     @ReactMethod
-    public void cancel(String jobKey) {
+    public void cancel(String jobKey, Callback callback) {
         Log.d(LOG_TAG, "Cancelling job: " + jobKey);
+        final boolean canceled;
         if (mForegroundJobBundle.getString("jobKey", "").equals(jobKey)) {
-            cancelCurrentForegroundJob();
+            canceled = cancelCurrentForegroundJob();
         } else {
-            mJobDispatcher.cancel(jobKey);
+            canceled = mJobDispatcher.cancel(jobKey) == CANCEL_RESULT_SUCCESS;
         }
+        callback.invoke(canceled);
     }
 
     @ReactMethod
-    public void cancelAll() {
+    public void cancelAll(Callback callback) {
         Log.d(LOG_TAG, "Cancelling all jobs");
-        cancelCurrentForegroundJob();
-        mJobDispatcher.cancelAll();
+        final boolean foregroundCanceled = !ForegroundJobService.isRunning(getReactApplicationContext()) || cancelCurrentForegroundJob();
+        final boolean allBackgroundCanceled = mJobDispatcher.cancelAll() == CANCEL_RESULT_SUCCESS;
+        callback.invoke(foregroundCanceled || allBackgroundCanceled);
     }
 
     @Override

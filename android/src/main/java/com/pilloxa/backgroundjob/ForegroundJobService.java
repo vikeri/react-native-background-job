@@ -130,7 +130,7 @@ public class ForegroundJobService extends Service {
         return false;
     }
 
-    public static void stop(Context context) {
-        context.stopService(new Intent(context, ForegroundJobService.class));
+    public static boolean stop(Context context) {
+        return context.stopService(new Intent(context, ForegroundJobService.class));
     }
 }

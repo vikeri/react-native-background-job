@@ -123,7 +123,10 @@ const BackgroundJob = {
         alwaysRunning,
         notificationTitle,
         notificationIcon,
-        notificationText
+        notificationText,
+        (scheduled) => {
+          console.log(`The job ${jobKey} was ${scheduled ? "successfully": "unsuccessfully"} scheduled.`)
+        }
       );
     }
   },
@@ -139,8 +142,12 @@ const BackgroundJob = {
      * BackgroundJob.cancel({jobKey: 'myJob'});
      */
   cancel: function({ jobKey }) {
-    // TODO: Add callback to the cancel method
-    jobModule.cancel(jobKey);
+    jobModule.cancel(
+      jobKey,
+      (canceled) => {
+          console.log(`The job ${jobKey} was ${canceled ? "successfully": "unsuccessfully"} canceled.`)
+        }
+      );
   },
   /**
      * Cancels all the scheduled jobs
@@ -151,7 +158,11 @@ const BackgroundJob = {
      * BackgroundJob.cancelAll();
      */
   cancelAll: function() {
-    jobModule.cancelAll();
+    jobModule.cancelAll(
+      (canceled) => {
+          console.log(`All the jobs were ${canceled ? "successfully": "unsuccessfully"} canceled.`)
+        }
+      );
     const keys = Object.keys(jobs);
   },
   /**
