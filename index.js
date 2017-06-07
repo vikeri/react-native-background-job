@@ -49,7 +49,7 @@ const BackgroundJob = {
       };
 
       AppRegistry.registerHeadlessTask(jobKey, () => fn);
-      DeviceEventEmitter.addListener("RNBackgroundJob", job);
+      DeviceEventEmitter.addListener(jobKey, job);
 
       if (existingJob) {
         jobs[jobKey].registered = true;
