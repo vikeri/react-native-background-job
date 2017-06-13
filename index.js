@@ -3,7 +3,6 @@ import {
   NativeModules,
   AppRegistry,
   Platform,
-  DeviceEventEmitter
 } from "react-native";
 
 const AppState = NativeModules.AppState;
@@ -49,7 +48,6 @@ const BackgroundJob = {
       };
 
       AppRegistry.registerHeadlessTask(jobKey, () => fn);
-      DeviceEventEmitter.addListener(jobKey, job);
 
       if (existingJob) {
         jobs[jobKey].registered = true;
@@ -65,7 +63,8 @@ const BackgroundJob = {
      *
      * @param {Object} obj
      * @param {string} obj.jobKey A unique key for the job
-     * @param {number} [obj.period = 900000] - The frequency to run the job with (in ms). This number is not exact, Android may modify it to save batteries. Note: For Android > N, the minimum is 900 0000 (15 min).
+     * @param {number} [obj.timeout = 2000] the amount of time (in ms) after which the React instance should be terminated regardless of whether the task has completed or not.
+     * @param {number} [obj.period = 900000]  The frequency to run the job with (in ms). This number is not exact, Android may modify it to save batteries. Note: For Android > N, the minimum is 900 0000 (15 min).
      * @param {boolean} [obj.persist = true] If the job should persist over a device restart.
      * @param {boolean} [obj.override = true] Whether this Job should replace pre-existing Jobs with the same key.
      * @param {number} [obj.networkType = BackgroundJob.NETWORK_TYPE_ANY] Only run for specific network requirements, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.html#NETWORK_TYPE_ANY)
@@ -94,6 +93,7 @@ const BackgroundJob = {
      */
   schedule: function({
     jobKey,
+    timeout = 2000,
     period = 900000,
     persist = true,
     override = true,
@@ -101,6 +101,7 @@ const BackgroundJob = {
     requiresCharging = false,
     requiresDeviceIdle = false,
     alwaysRunning = false,
+    allowExecutionInForeground = false,
     notificationTitle,
     notificationText,
     notificationIcon
@@ -114,6 +115,7 @@ const BackgroundJob = {
     } else {
       jobModule.schedule(
         jobKey,
+        timeout,
         period,
         persist,
         overrid,
@@ -121,6 +123,7 @@ const BackgroundJob = {
         requiresCharging,
         requiresDeviceIdle,
         alwaysRunning,
+        allowExecutionInForeground,
         notificationTitle,
         notificationIcon,
         notificationText,

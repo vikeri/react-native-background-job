@@ -30,19 +30,11 @@ class ReactNativeEventStarter {
 
     public void trigger(@NonNull Bundle jobBundle) {
         Log.d(LOG_TAG, "trigger() called with: jobBundle = [" + jobBundle + "]");
-        if (isAppInForeground()) {
-            emitJobEvent(jobBundle);
-        } else {
-            MyHeadlessJsTaskService.start(context, jobBundle);
+        boolean appInForeground = isAppInForeground();
+        boolean allowExecutionInForeground = jobBundle.getBoolean("allowExecutionInForeground", false);
+        if (!appInForeground || allowExecutionInForeground) {
+          MyHeadlessJsTaskService.start(context, jobBundle);
         }
-    }
-
-    private void emitJobEvent(Bundle jobBundle) {
-        Log.d(LOG_TAG, "emitJobEvent() called with: jobBundle = [" + jobBundle + "]");
-        WritableMap map = Arguments.fromBundle(jobBundle);
-        //noinspection ConstantConditions - nullability is checked in isAppInForeground
-        getReactContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(jobBundle.getString("jobKey"), map);
     }
 
     public static class MyHeadlessJsTaskService extends HeadlessJsTaskService {
@@ -51,8 +43,12 @@ class ReactNativeEventStarter {
         @Override
         protected HeadlessJsTaskConfig getTaskConfig(Intent intent) {
             Log.d(LOG_TAG, "getTaskConfig() called with: intent = [" + intent + "]");
-            return new HeadlessJsTaskConfig(intent.getStringExtra("jobKey"),
-                    Arguments.fromBundle(intent.getExtras()));
+          Bundle extras = intent.getExtras();
+          boolean allowExecutionInForeground =
+              extras.getBoolean("allowExecutionInForeground", false);
+          long timeout = extras.getLong("timeout", 2000);
+          return new HeadlessJsTaskConfig(intent.getStringExtra("jobKey"),
+                    Arguments.fromBundle(extras), timeout, allowExecutionInForeground);
         }
 
         public static void start(Context context, Bundle jobBundle) {

@@ -57,6 +57,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
                          boolean requiresCharging,
                          boolean requiresDeviceIdle,
                          boolean alwaysRunning,
+                         boolean allowExecutionInForeground,
                          String title,
                          String icon,
                          String text,
@@ -66,24 +67,25 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
         jobBundle.putString("notificationTitle", title);
         jobBundle.putString("notificationIcon", icon);
         jobBundle.putString("notificationText", text);
-        jobBundle.putInt("timeout", timeout);
+        jobBundle.putLong("timeout", timeout);
         jobBundle.putInt("persist", persist ? 1 : 0);
         jobBundle.putBoolean("override", override);
-        jobBundle.putInt("period", period);
+        jobBundle.putLong("period", period);
         jobBundle.putInt("networkType", networkType);
         jobBundle.putInt("requiresCharging", requiresCharging ? 1 : 0);
         jobBundle.putInt("requiresDeviceIdle", requiresDeviceIdle ? 1 : 0);
         jobBundle.putInt("alwaysRunning", alwaysRunning ? 1 : 0);
+        jobBundle.putBoolean("allowExecutionInForeground", allowExecutionInForeground);
 
         Log.d(LOG_TAG, "Scheduling job with:" + jobBundle.toString());
 
-        final boolean sheduled;
+        final boolean scheduled;
         if (alwaysRunning) {
-            sheduled = scheduleForegroundJob(jobBundle);
+            scheduled = scheduleForegroundJob(jobBundle);
         } else {
-            sheduled = scheduleBackgroundJob(jobKey, period, persist, override, networkType, requiresCharging, jobBundle);
+            scheduled = scheduleBackgroundJob(jobKey, period, persist, override, networkType, requiresCharging, jobBundle);
         }
-        callback.invoke(sheduled);
+        callback.invoke(scheduled);
     }
 
     /**
