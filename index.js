@@ -70,7 +70,7 @@ const BackgroundJob = {
      * @param {number} [obj.networkType = BackgroundJob.NETWORK_TYPE_ANY] Only run for specific network requirements, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.html#NETWORK_TYPE_ANY)
      * @param {boolean} [obj.requiresCharging = false] Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean))
      * @param {boolean} [obj.requiresDeviceIdle = false] Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean))
-     * @param {boolean} [obj.alwaysRunning = false] Creates a foreground service that will keep the app alive forever. Suitable for music playback etc. Will always show a notification.
+     * @param {boolean} [obj.exact = false] Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things.
      * @param {string} obj.notificationTitle The title of the persistent notification when `alwaysRunning`
      * @param {string} obj.notificationText The text of the persistent notification when `alwaysRunning`
      * @param {string} obj.notificationIcon The icon string (in drawable) of the persistent notification when `alwaysRunning`
@@ -100,7 +100,7 @@ const BackgroundJob = {
     networkType = this.NETWORK_TYPE_ANY,
     requiresCharging = false,
     requiresDeviceIdle = false,
-    alwaysRunning = false,
+    exact = false,
     allowExecutionInForeground = false,
     notificationTitle,
     notificationText,
@@ -122,7 +122,7 @@ const BackgroundJob = {
         networkType,
         requiresCharging,
         requiresDeviceIdle,
-        alwaysRunning,
+        exact,
         allowExecutionInForeground,
         notificationTitle,
         notificationIcon,

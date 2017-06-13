@@ -7,13 +7,13 @@
   <application>
     <service
         android:name=".BackgroundJob"
-        android:permission="android.permission.BIND_JOB_SERVICE"
-        android:exported="true"/>
+        android:exported="true"
+        android:permission="android.permission.BIND_JOB_SERVICE"/>
     <service
-        android:name=".ReactNativeEventStarter$MyHeadlessJsTaskService"
+        android:name=".ExactJob"
         android:enabled="true"/>
     <service
-        android:name=".ForegroundJobService"
+        android:name=".ReactNativeEventStarter$MyHeadlessJsTaskService"
         android:enabled="true"/>
   </application>
 </manifest>

@@ -1,7 +1,6 @@
 package com.pilloxa.backgroundjob;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import com.facebook.react.bridge.Callback;
@@ -29,8 +28,6 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
 
   private FirebaseJobDispatcher mJobDispatcher;
 
-  @NonNull private Bundle mForegroundJobBundle = Bundle.EMPTY;
-
   @Override public void initialize() {
     super.initialize();
     Log.d(LOG_TAG, "Initializing BackgroundJob");
@@ -46,7 +43,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void schedule(String jobKey, int timeout, int period, boolean persist, boolean override,
-      int networkType, boolean requiresCharging, boolean requiresDeviceIdle, boolean alwaysRunning,
+      int networkType, boolean requiresCharging, boolean requiresDeviceIdle, boolean exact,
       boolean allowExecutionInForeground, String title, String icon, String text,
       Callback callback) {
     final Bundle jobBundle = new Bundle();
@@ -61,14 +58,13 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
     jobBundle.putInt("networkType", networkType);
     jobBundle.putInt("requiresCharging", requiresCharging ? 1 : 0);
     jobBundle.putInt("requiresDeviceIdle", requiresDeviceIdle ? 1 : 0);
-    jobBundle.putInt("alwaysRunning", alwaysRunning ? 1 : 0);
     jobBundle.putBoolean("allowExecutionInForeground", allowExecutionInForeground);
 
     Log.d(LOG_TAG, "Scheduling job with:" + jobBundle.toString());
 
     final boolean scheduled;
-    if (alwaysRunning) {
-      scheduled = scheduleForegroundJob(jobBundle);
+    if (exact) {
+      scheduled = scheduleExactJob(jobKey, period, override, jobBundle);
     } else {
       scheduled =
           scheduleBackgroundJob(jobKey, period, persist, override, networkType, requiresCharging,
@@ -105,42 +101,26 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
   }
 
   /**
-   * Will fully schedule (cancel the old and schedule a new one) always running foreground job.
-   *
-   * @return true if there is a scheduled foreground job
+   * Similar to scheduleBackgroundJob but will use simple custom implementation that will trigger
+   * the job in the exact manner.
    */
-  private boolean scheduleForegroundJob(@NonNull Bundle jobBundle) {
-    final Bundle foregroundJobBundle = new Bundle(jobBundle);
-    final boolean scheduled =
-        ForegroundJobService.schedule(getReactApplicationContext(), foregroundJobBundle);
-    if (scheduled) {
-      mForegroundJobBundle = foregroundJobBundle;
-    }
-    return !mForegroundJobBundle.isEmpty();
-  }
-
-  private boolean cancelCurrentForegroundJob() {
-    mForegroundJobBundle = Bundle.EMPTY;
-    return ForegroundJobService.stop(getReactApplicationContext());
+  private boolean scheduleExactJob(String jobKey, long period, boolean override, Bundle jobBundle) {
+    return ExactJobDispatcher.schedule(getReactApplicationContext(), jobKey, period, override,
+        jobBundle);
   }
 
   @ReactMethod public void cancel(String jobKey, Callback callback) {
     Log.d(LOG_TAG, "Cancelling job: " + jobKey);
-    final boolean canceled;
-    if (mForegroundJobBundle.getString("jobKey", "").equals(jobKey)) {
-      canceled = cancelCurrentForegroundJob();
-    } else {
-      canceled = mJobDispatcher.cancel(jobKey) == CANCEL_RESULT_SUCCESS;
-    }
+    boolean canceled = ExactJobDispatcher.cancel(getReactApplicationContext(), jobKey);
+    canceled = mJobDispatcher.cancel(jobKey) == CANCEL_RESULT_SUCCESS || canceled;
     callback.invoke(canceled);
   }
 
   @ReactMethod public void cancelAll(Callback callback) {
     Log.d(LOG_TAG, "Cancelling all jobs");
-    final boolean foregroundCanceled = !ForegroundJobService.isRunning(getReactApplicationContext())
-        || cancelCurrentForegroundJob();
+    final boolean exactCanceled = ExactJobDispatcher.cancelAll(getReactApplicationContext());
     final boolean allBackgroundCanceled = mJobDispatcher.cancelAll() == CANCEL_RESULT_SUCCESS;
-    callback.invoke(foregroundCanceled || allBackgroundCanceled);
+    callback.invoke(exactCanceled && allBackgroundCanceled);
   }
 
   @Override public String getName() {
