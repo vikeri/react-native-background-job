@@ -1,14 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.pilloxa.backgroundjob">
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <application>
-        <service android:name=".BackgroundJob"
-                 android:permission="android.permission.BIND_JOB_SERVICE"
-                 android:exported="true"/>
-        <service android:name=".ReactNativeEventStarter$MyHeadlessJsTaskService"
-                 android:enabled="true"/>
-        <service android:name=".ForegroundJobService"
-            android:enabled="true"/>
-    </application>
+    package="com.pilloxa.backgroundjob">
+
+  <uses-permission android:name="android.permission.WAKE_LOCK"/>
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+  <application>
+    <service
+        android:name=".BackgroundJob"
+        android:permission="android.permission.BIND_JOB_SERVICE"
+        android:exported="true"/>
+    <service
+        android:name=".ReactNativeEventStarter$MyHeadlessJsTaskService"
+        android:enabled="true"/>
+    <service
+        android:name=".ForegroundJobService"
+        android:enabled="true"/>
+  </application>
 </manifest>
