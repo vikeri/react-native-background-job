@@ -16,6 +16,7 @@ import com.firebase.jobdispatcher.RetryStrategy;
 import com.firebase.jobdispatcher.Trigger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.firebase.jobdispatcher.FirebaseJobDispatcher.CANCEL_RESULT_SUCCESS;
 import static com.firebase.jobdispatcher.FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS;
@@ -44,20 +45,16 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void schedule(String jobKey, int timeout, int period, boolean persist, boolean override,
       int networkType, boolean requiresCharging, boolean requiresDeviceIdle, boolean exact,
-      boolean allowExecutionInForeground, String title, String icon, String text,
-      Callback callback) {
+      boolean allowExecutionInForeground, Callback callback) {
     final Bundle jobBundle = new Bundle();
     jobBundle.putString("jobKey", jobKey);
-    jobBundle.putString("notificationTitle", title);
-    jobBundle.putString("notificationIcon", icon);
-    jobBundle.putString("notificationText", text);
     jobBundle.putLong("timeout", timeout);
-    jobBundle.putInt("persist", persist ? 1 : 0);
+    jobBundle.putBoolean("persist", persist);
     jobBundle.putBoolean("override", override);
     jobBundle.putLong("period", period);
     jobBundle.putInt("networkType", networkType);
-    jobBundle.putInt("requiresCharging", requiresCharging ? 1 : 0);
-    jobBundle.putInt("requiresDeviceIdle", requiresDeviceIdle ? 1 : 0);
+    jobBundle.putBoolean("requiresCharging", requiresCharging);
+    jobBundle.putBoolean("requiresDeviceIdle", requiresDeviceIdle);
     jobBundle.putBoolean("allowExecutionInForeground", allowExecutionInForeground);
 
     Log.d(LOG_TAG, "Scheduling job with:" + jobBundle.toString());
@@ -78,18 +75,21 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
    */
   private boolean scheduleBackgroundJob(String jobKey, int period, boolean persist,
       boolean override, int networkType, boolean requiresCharging, Bundle jobBundle) {
+    int periodInSeconds = (int) TimeUnit.MILLISECONDS.toSeconds(period);
     Job.Builder jobBuilder = mJobDispatcher.newJobBuilder()
         .setService(BackgroundJob.class)
         .setExtras(jobBundle)
         .setTag(jobKey)
-        .setTrigger(Trigger.executionWindow(period, period))
+        .setTrigger(Trigger.executionWindow(periodInSeconds, periodInSeconds))
         .setLifetime(persist ? Lifetime.FOREVER : Lifetime.UNTIL_NEXT_BOOT)
-        .addConstraint(networkType)
         .setRecurring(true)
         .setReplaceCurrent(override)
         .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR);
     if (requiresCharging) {
       jobBuilder.addConstraint(Constraint.DEVICE_CHARGING);
+    }
+    if (networkType == Constraint.ON_ANY_NETWORK || networkType == Constraint.ON_UNMETERED_NETWORK) {
+      jobBuilder.addConstraint(networkType);
     }
     if (mJobDispatcher.schedule(jobBuilder.build()) == SCHEDULE_RESULT_SUCCESS) {
       Log.d(LOG_TAG, "Successfully scheduled: " + jobKey);

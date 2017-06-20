@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import com.facebook.react.HeadlessJsTaskService;
 import com.facebook.react.ReactApplication;
-import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.ReactNativeHost;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.common.LifecycleState;
@@ -16,13 +16,12 @@ import javax.annotation.Nullable;
 
 class ReactNativeEventStarter {
   private static final String LOG_TAG = ReactNativeEventStarter.class.getSimpleName();
-  private final ReactInstanceManager reactInstanceManager;
+  private final ReactNativeHost reactNativeHost;
   private final Context context;
 
   ReactNativeEventStarter(@NonNull Context context) {
     this.context = context;
-    reactInstanceManager = ((ReactApplication) context.getApplicationContext()).getReactNativeHost()
-        .getReactInstanceManager();
+    reactNativeHost = ((ReactApplication) context.getApplicationContext()).getReactNativeHost();
   }
 
   public void trigger(@NonNull Bundle jobBundle) {
@@ -56,11 +55,10 @@ class ReactNativeEventStarter {
   }
 
   private boolean isAppInForeground() {
-    ReactContext reactContext = reactInstanceManager.getCurrentReactContext();
+    if (!reactNativeHost.hasInstance()) {
+      return false;
+    }
+    ReactContext reactContext = reactNativeHost.getReactInstanceManager().getCurrentReactContext();
     return reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED;
-  }
-
-  @Nullable private ReactContext getReactContext() {
-    return reactInstanceManager.getCurrentReactContext();
   }
 }
