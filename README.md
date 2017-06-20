@@ -8,9 +8,9 @@ This library relies on React Native's [`HeadlessJS`](https://facebook.github.io/
 
 On the native side it uses either [`JobScheduler`](https://developer.android.com/reference/android/app/job/JobScheduler.html) or a Foreground Service.
 
-- JobScheduler (default): The jobs can't be scheduled exactly and for Android 23+ they fire at most once per 15 minutes +-5 minutes. `JobSceduler` is the most battery efficient way of scheduling background tasks. 
+-   JobScheduler (default): The jobs can't be scheduled exactly and for Android 23+ they fire at most once per 15 minutes +-5 minutes. `JobSceduler` is the most battery efficient way of scheduling background tasks. 
 
-- Foreground Service: Activated by setting `alwaysRunning` to `true`. This will show a notification which allows the app to run indefinitely without (almost) ever being killed by the system. This means that the intervals for triggering the jobs are much more exact and it can also be used for persistent tasks such as playing music. Currently only one background job can be `alwaysRunning`, it won't throw any errors if you add more but it will only schedule one job.
+-   Foreground Service: Activated by setting `alwaysRunning` to `true`. This will show a notification which allows the app to run indefinitely without (almost) ever being killed by the system. This means that the intervals for triggering the jobs are much more exact and it can also be used for persistent tasks such as playing music. Currently only one background job can be `alwaysRunning`, it won't throw any errors if you add more but it will only schedule one job.
 
 ## Requirements
 
@@ -77,10 +77,10 @@ For a full example check out [example/index.android.js](example/index.android.js
 
 ### register
 
-Registers jobs and the functions they should run. 
+Registers jobs and the functions they should run.
 
 This has to run on each initialization of React Native and it has to run in the global scope and not inside any
-component life cycle methods. See example project. Only registering the job will not start running the job. 
+component life cycle methods. See example project. Only registering the job will not start running the job.
 It has to be scheduled by `schedule` to start running.
 
 **Parameters**
@@ -104,7 +104,7 @@ BackgroundJob.register(backgroundJob);
 
 ### schedule
 
-Schedules a new job. 
+Schedules a new job.
 
 This only has to be run once while `register` has to be run on each initialization of React Native.
 
@@ -112,14 +112,15 @@ This only has to be run once while `register` has to be run on each initializati
 
 -   `obj` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
     -   `obj.jobKey` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** A unique key for the job
-    -   `obj.timeout` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** How long the JS job may run before being terminated by Android (in ms).
-    -   `obj.period` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)?** The frequency to run the job with (in ms). This number is not exact, Android may modify it to save batteries. Note: For Android > N, the minimum is 900 0000 (15 min). (optional, default `900000`)
-    -   `obj.persist` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** If the job should persist over a device restart. (optional, default `true`)
-    -   `obj.warn` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** If a warning should be raised if overwriting a job that was already scheduled. (optional, default `true`)
-    -   `obj.networkType` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)?** Only run for specific network requirements, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.html#NETWORK_TYPE_ANY) (optional, default `BackgroundJob.NETWORK_TYPE_NONE`)
-    -   `obj.requiresCharging` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean)) (optional, default `false`)
-    -   `obj.requiresDeviceIdle` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean)) (optional, default `false`)
-    -   `obj.alwaysRunning` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** Creates a foreground service that will keep the app alive forever. Suitable for music playback etc. Will always show a notification. (optional, default `false`)
+    -   `obj.timeout` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** the amount of time (in ms) after which the React instance should be terminated regardless of whether the task has completed or not. (optional, default `2000`)
+    -   `obj.period` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The frequency to run the job with (in ms). This number is not exact, Android may modify it to save batteries. Note: For Android > N, the minimum is 900 0000 (15 min). (optional, default `900000`)
+    -   `obj.persist` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** If the job should persist over a device restart. (optional, default `true`)
+    -   `obj.override` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Whether this Job should replace pre-existing Jobs with the same key. (optional, default `true`)
+    -   `obj.networkType` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** Only run for specific network requirements, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.html#NETWORK_TYPE_ANY) (optional, default `BackgroundJob.NETWORK_TYPE_ANY`)
+    -   `obj.requiresCharging` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean)) (optional, default `false`)
+    -   `obj.requiresDeviceIdle` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean)) (optional, default `false`)
+    -   `obj.exact` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things. (optional, default `false`)
+    -   `obj.allowExecutionInForeground` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** = Allow the registered task to be triggerd even when the app is in foreground (optional, default `false`)
     -   `obj.notificationTitle` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The title of the persistent notification when `alwaysRunning`
     -   `obj.notificationText` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The text of the persistent notification when `alwaysRunning`
     -   `obj.notificationIcon` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The icon string (in drawable) of the persistent notification when `alwaysRunning`
@@ -138,27 +139,9 @@ BackgroundJob.register(backgroundJob);
 
 var backgroundSchedule = {
  jobKey: "myJob",
- timeout: 5000
 }
 
 BackgroundJob.schedule(backgroundSchedule);
-```
-
-### getAll
-
-Fetches all the currently scheduled jobs
-
-**Parameters**
-
--   `obj` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
-    -   `obj.callback` **function ([Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** A list of all the scheduled jobs will be passed to the callback
-
-**Examples**
-
-```javascript
-import BackgroundJob from 'react-native-background-job';
-
-BackgroundJob.getAll({callback: (jobs) => console.log("Jobs:",jobs)});
 ```
 
 ### cancel
@@ -169,7 +152,6 @@ Cancel a specific job
 
 -   `obj` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
     -   `obj.jobKey` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The unique key for the job
-    -   `obj.warn` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** If one tries to cancel a job that has not been scheduled it will warn (optional, default `true`)
 
 **Examples**
 

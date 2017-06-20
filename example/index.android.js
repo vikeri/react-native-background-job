@@ -15,13 +15,23 @@ import {
 
 import BackgroundJob from "react-native-background-job";
 
-const myJobKey = "Hej";
+const regularJobKey = "regularJobKey";
+const exactJobKey = "exactJobKey";
+const foregroundJobKey = "foregroundJobKey";
 
 // This has to run outside of the component definition since the component is never
 // instantiated when running in headless mode
 BackgroundJob.register({
-  jobKey: myJobKey,
-  job: () => console.log("Background Job fired!")
+  jobKey: regularJobKey,
+  job: () => console.log(`Background Job fired!. Key = ${regularJobKey}`)
+});
+BackgroundJob.register({
+  jobKey: exactJobKey,
+  job: () => console.log(`Exact Job fired!. Key = ${exactJobKey}`)
+});
+BackgroundJob.register({
+  jobKey: foregroundJobKey,
+  job: () => console.log(`Exact Job fired!. Key = ${foregroundJobKey}`)
 });
 
 export default class backtest extends Component {
@@ -47,36 +57,45 @@ export default class backtest extends Component {
           style={styles.button}
           onPress={() => {
             BackgroundJob.schedule({
-              jobKey: myJobKey,
-              period: 10,
-              timeout: 10,
-              networkType: BackgroundJob.NETWORK_TYPE_ANY
+              jobKey: regularJobKey,
+              period: 15000
             });
           }}
         >
-          <Text>Schedule</Text>
+          <Text>Schedule regular job</Text>
         </TouchableHighlight>
         <TouchableHighlight
           style={styles.button}
           onPress={() => {
             BackgroundJob.schedule({
-              jobKey: myJobKey,
-              period: 10,
-              timeout: 10,
-              networkType: BackgroundJob.NETWORK_TYPE_ANY,
-              alwaysRunning: true
+              jobKey: exactJobKey,
+              period: 1000,
+              exact: true
             });
           }}
         >
-          <Text>Schedule always running job</Text>
+          <Text>Schedule exact job</Text>
         </TouchableHighlight>
         <TouchableHighlight
           style={styles.button}
           onPress={() => {
-            BackgroundJob.cancel({ jobKey: myJobKey });
+            BackgroundJob.schedule({
+              jobKey: foregroundJobKey,
+              period: 1000,
+              exact: true,
+              allowExecutionInForeground: true
+            });
           }}
         >
-          <Text>Cancel</Text>
+          <Text>Schedule exact foreground job</Text>
+        </TouchableHighlight>
+        <TouchableHighlight
+          style={styles.button}
+          onPress={() => {
+            BackgroundJob.cancel({ jobKey: regularJobKey });
+          }}
+        >
+          <Text>Cancel regular job</Text>
         </TouchableHighlight>
         <TouchableHighlight
           style={styles.button}

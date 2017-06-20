@@ -1,9 +1,5 @@
 "use strict";
-import {
-  NativeModules,
-  AppRegistry,
-  Platform,
-} from "react-native";
+import { NativeModules, AppRegistry, Platform } from "react-native";
 
 const AppState = NativeModules.AppState;
 const tag = "BackgroundJob:";
@@ -71,6 +67,7 @@ const BackgroundJob = {
      * @param {boolean} [obj.requiresCharging = false] Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean))
      * @param {boolean} [obj.requiresDeviceIdle = false] Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean))
      * @param {boolean} [obj.exact = false] Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things.
+     * @param {boolean} [obj.allowExecutionInForeground = false] = Allow the registered task to be triggerd even when the app is in foreground
      * @param {string} obj.notificationTitle The title of the persistent notification when `alwaysRunning`
      * @param {string} obj.notificationText The text of the persistent notification when `alwaysRunning`
      * @param {string} obj.notificationIcon The icon string (in drawable) of the persistent notification when `alwaysRunning`
@@ -118,7 +115,7 @@ const BackgroundJob = {
         timeout,
         period,
         persist,
-        overrid,
+        override,
         networkType,
         requiresCharging,
         requiresDeviceIdle,
@@ -127,8 +124,10 @@ const BackgroundJob = {
         notificationTitle,
         notificationIcon,
         notificationText,
-        (scheduled) => {
-          console.log(`The job ${jobKey} was ${scheduled ? "successfully": "unsuccessfully"} scheduled.`)
+        scheduled => {
+          console.log(
+            `The job ${jobKey} was ${scheduled ? "successfully" : "unsuccessfully"} scheduled.`
+          );
         }
       );
     }
@@ -145,12 +144,11 @@ const BackgroundJob = {
      * BackgroundJob.cancel({jobKey: 'myJob'});
      */
   cancel: function({ jobKey }) {
-    jobModule.cancel(
-      jobKey,
-      (canceled) => {
-          console.log(`The job ${jobKey} was ${canceled ? "successfully": "unsuccessfully"} canceled.`)
-        }
+    jobModule.cancel(jobKey, canceled => {
+      console.log(
+        `The job ${jobKey} was ${canceled ? "successfully" : "unsuccessfully"} canceled.`
       );
+    });
   },
   /**
      * Cancels all the scheduled jobs
@@ -161,11 +159,11 @@ const BackgroundJob = {
      * BackgroundJob.cancelAll();
      */
   cancelAll: function() {
-    jobModule.cancelAll(
-      (canceled) => {
-          console.log(`All the jobs were ${canceled ? "successfully": "unsuccessfully"} canceled.`)
-        }
+    jobModule.cancelAll(canceled => {
+      console.log(
+        `All the jobs were ${canceled ? "successfully" : "unsuccessfully"} canceled.`
       );
+    });
     const keys = Object.keys(jobs);
   },
   /**
