@@ -1,21 +1,21 @@
 # react-native-background-job [![npm version](https://badge.fury.io/js/react-native-background-job.svg)](https://badge.fury.io/js/react-native-background-job)
 
-Schedule background jobs that run your JavaScript when your app is in the background. 
+Schedule background jobs that run your JavaScript when your app is in the background or if you feel brave even in foreground.
 
 The jobs will run even if the app has been closed and, by default, also persists over restarts.
 
 This library relies on React Native's [`HeadlessJS`](https://facebook.github.io/react-native/docs/headless-js-android.html) which is currently only supported on Android.
 
-On the native side it uses either [`JobScheduler`](https://developer.android.com/reference/android/app/job/JobScheduler.html) or a Foreground Service.
+On the native side it uses either [`Firebase JobDispatcher`](https://github.com/firebase/firebase-jobdispatcher-android) or a [`AlarmManager`](https://developer.android.com/reference/android/app/AlarmManager.html).
 
--   JobScheduler (default): The jobs can't be scheduled exactly and for Android 23+ they fire at most once per 15 minutes +-5 minutes. `JobSceduler` is the most battery efficient way of scheduling background tasks. 
+-   Firebase JobDispatcher (default): The jobs can't be scheduled exactly and depending on the Android API version different `period` time is allowed. `FirebaseJobDispatcher` is the most battery efficient backward compatible way of scheduling background tasks. 
 
--   Foreground Service: Activated by setting `alwaysRunning` to `true`. This will show a notification which allows the app to run indefinitely without (almost) ever being killed by the system. This means that the intervals for triggering the jobs are much more exact and it can also be used for persistent tasks such as playing music. Currently only one background job can be `alwaysRunning`, it won't throw any errors if you add more but it will only schedule one job.
+-   AlarmManager by setting `exact` to `true`: Simple propriatery implementation that is only ment to be used while testing. It only cares about executing on time, all other parameters are ignored - job is not persisted on reboot.
 
 ## Requirements
 
 -   RN 0.36+
--   Android API 21+
+-   Android API 16+
 
 ## Supported platforms
 
@@ -65,9 +65,9 @@ or
 
 ## Usage
 
-The jobs have to be registered each time React Native starts, this is done using the `register` function. Since HeadlessJS does not mount any components the `register` function must be run outside of any class definitions (see [example/index.android.js](https://github.com/vikeri/react-native-background-job/blob/8b8fdb2cb4bc0907eb16a54204c85c3b7a60dfa4/example/index.android.js#L20-L23))
+The jobs have to be registered each time React Native starts, this is done using the `register` function. Since HeadlessJS does not mount any components the `register` function must be run outside of any class definitions (see [example/index.android.js](example/index.android.js#L24-L35))
 
-Registering the job does not mean that the job is scheduled, it just informs React Native that this `job` function should be tied to this `jobKey`. The job is then scheduled using the `schedule` function. **The job will not fire while the app is in the foreground**. This is since the job is run on the only JavaScript thread and if running the job when app is in the foreground it would freeze the app.
+Registering the job does not mean that the job is scheduled, it just informs React Native that this `job` function should be tied to this `jobKey`. The job is then scheduled using the `schedule` function. **By default, the job will not fire while the app is in the foreground**. This is since the job is run on the only JavaScript thread and if running the job when app is in the foreground it would freeze the app. By setting `allowExecutionInForeground` to `true` you allow this behavior. It is recommended that you do't use this, but for quick jobs should be fine.
 
 For a full example check out [example/index.android.js](example/index.android.js)
 
@@ -77,10 +77,10 @@ For a full example check out [example/index.android.js](example/index.android.js
 
 ### register
 
-Registers jobs and the functions they should run.
+Registers the job and the functions they should run.
 
 This has to run on each initialization of React Native and it has to run in the global scope and not inside any
-component life cycle methods. See example project. Only registering the job will not start running the job.
+component life cycle methods. See example project. Only registering the job will not schedule the job.
 It has to be scheduled by `schedule` to start running.
 
 **Parameters**
@@ -111,19 +111,16 @@ This only has to be run once while `register` has to be run on each initializati
 **Parameters**
 
 -   `obj` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
-    -   `obj.jobKey` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** A unique key for the job
-    -   `obj.timeout` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** the amount of time (in ms) after which the React instance should be terminated regardless of whether the task has completed or not. (optional, default `2000`)
+    -   `obj.jobKey` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** A unique key for the job that was used for registering, and be used for canceling in later stage.
+    -   `obj.timeout` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The amount of time (in ms) after which the React instance should be terminated regardless of whether the task has completed or not. (optional, default `2000`)
     -   `obj.period` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The frequency to run the job with (in ms). This number is not exact, Android may modify it to save batteries. Note: For Android > N, the minimum is 900 0000 (15 min). (optional, default `900000`)
     -   `obj.persist` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** If the job should persist over a device restart. (optional, default `true`)
-    -   `obj.override` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Whether this Job should replace pre-existing Jobs with the same key. (optional, default `true`)
-    -   `obj.networkType` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** Only run for specific network requirements, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.html#NETWORK_TYPE_ANY) (optional, default `BackgroundJob.NETWORK_TYPE_ANY`)
+    -   `obj.override` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Whether this Job should replace pre-existing jobs with the same key. (optional, default `true`)
+    -   `obj.networkType` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** Only run for specific network requirements. (optional, default `NETWORK_TYPE_NONE`)
     -   `obj.requiresCharging` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean)) (optional, default `false`)
     -   `obj.requiresDeviceIdle` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean)) (optional, default `false`)
     -   `obj.exact` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things. (optional, default `false`)
-    -   `obj.allowExecutionInForeground` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** = Allow the registered task to be triggerd even when the app is in foreground (optional, default `false`)
-    -   `obj.notificationTitle` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The title of the persistent notification when `alwaysRunning`
-    -   `obj.notificationText` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The text of the persistent notification when `alwaysRunning`
-    -   `obj.notificationIcon` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The icon string (in drawable) of the persistent notification when `alwaysRunning`
+    -   `obj.allowExecutionInForeground` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Allow the scheduled job to be executed even when the app is in foreground. Use it only for short running jobs. (optional, default `false`)
 
 **Examples**
 
@@ -216,7 +213,7 @@ See [example project](https://github.com/vikeri/react-native-background-job/blob
 
 This is a [React Native issue](https://github.com/facebook/react-native/issues/11561), you can get around it by calling `NativeModules.AppState.getCurrentAppState` directly instead.
 
-### My job always runs in the background even if i specified `requiresCharging`, `requiresDeviceIdle` or a specific `networkType`
+### My job always runs in the background even if I specified `requiresCharging`, `requiresDeviceIdle` or a specific `networkType`
 
 This is an [Android issue](https://code.google.com/p/android/issues/detail?id=81265), it seems that you can not have these restrictions at the same time as you have a periodic interval for pre Android N devices.
 

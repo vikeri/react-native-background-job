@@ -15,10 +15,10 @@ const BackgroundJob = {
   NETWORK_TYPE_ANY: jobModule.ANY,
   NETWORK_TYPE_NONE: -1,
   /**
-     * Registers jobs and the functions they should run.
+     * Registers the job and the functions they should run.
      *
      * This has to run on each initialization of React Native and it has to run in the global scope and not inside any
-     * component life cycle methods. See example project. Only registering the job will not start running the job.
+     * component life cycle methods. See example project. Only registering the job will not schedule the job.
      * It has to be scheduled by `schedule` to start running.
      *
      * @param {Object} obj
@@ -53,22 +53,23 @@ const BackgroundJob = {
       }
     }
   },
+
   /**
      * Schedules a new job.
      *
      * This only has to be run once while `register` has to be run on each initialization of React Native.
      *
      * @param {Object} obj
-     * @param {string} obj.jobKey A unique key for the job
-     * @param {number} [obj.timeout = 2000] the amount of time (in ms) after which the React instance should be terminated regardless of whether the task has completed or not.
-     * @param {number} [obj.period = 900000]  The frequency to run the job with (in ms). This number is not exact, Android may modify it to save batteries. Note: For Android > N, the minimum is 900 0000 (15 min).
+     * @param {string} obj.jobKey A unique key for the job that was used for registering, and be used for canceling in later stage.
+     * @param {number} [obj.timeout = 2000] The amount of time (in ms) after which the React instance should be terminated regardless of whether the task has completed or not.
+     * @param {number} [obj.period = 900000] The frequency to run the job with (in ms). This number is not exact, Android may modify it to save batteries. Note: For Android > N, the minimum is 900 0000 (15 min).
      * @param {boolean} [obj.persist = true] If the job should persist over a device restart.
-     * @param {boolean} [obj.override = true] Whether this Job should replace pre-existing Jobs with the same key.
-     * @param {number} [obj.networkType = NETWORK_TYPE_NONE] Only run for specific network requirements, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.html#NETWORK_TYPE_ANY)
+     * @param {boolean} [obj.override = true] Whether this Job should replace pre-existing jobs with the same key.
+     * @param {number} [obj.networkType = NETWORK_TYPE_NONE] Only run for specific network requirements.
      * @param {boolean} [obj.requiresCharging = false] Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean))
      * @param {boolean} [obj.requiresDeviceIdle = false] Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean))
      * @param {boolean} [obj.exact = false] Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things.
-     * @param {boolean} [obj.allowExecutionInForeground = false] = Allow the registered task to be triggerd even when the app is in foreground
+     * @param {boolean} [obj.allowExecutionInForeground = false]  Allow the scheduled job to be executed even when the app is in foreground. Use it only for short running jobs. 
      *
      * @example
      * import BackgroundJob from 'react-native-background-job';

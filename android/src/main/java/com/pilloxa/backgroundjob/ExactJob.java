@@ -16,10 +16,12 @@ public class ExactJob extends IntentService {
       Set<String> scheduledJobs = ExactJobDispatcher.getScheduledExactJobs(this);
       Bundle extras = intent.getExtras();
       String jobKey = extras.getString("jobKey");
+      // Check if the job has been canceled meanwhile
       if (scheduledJobs.contains(jobKey)) {
         new ReactNativeEventStarter(this).trigger(extras);
         long period = extras.getLong("period", 2000);
         boolean override = extras.getBoolean("override", false);
+        // Re-schedule the job with the same parameters
         ExactJobDispatcher.schedule(this, jobKey, period, override, extras);
       }
     }

@@ -29,6 +29,7 @@ class ReactNativeEventStarter {
     boolean appInForeground = isAppInForeground();
     boolean allowExecutionInForeground = jobBundle.getBoolean("allowExecutionInForeground", false);
     if (!appInForeground || allowExecutionInForeground) {
+      // Will execute if the app is in background, or in forground but it has permision to do so
       MyHeadlessJsTaskService.start(context, jobBundle);
     }
   }
@@ -56,6 +57,7 @@ class ReactNativeEventStarter {
 
   private boolean isAppInForeground() {
     if (!reactNativeHost.hasInstance()) {
+      // If the app was force-stopped the instace will be destroyed. The instance can't be created from a background thread.
       return false;
     }
     ReactContext reactContext = reactNativeHost.getReactInstanceManager().getCurrentReactContext();

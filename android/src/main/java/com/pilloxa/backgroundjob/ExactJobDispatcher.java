@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class ExactJobDispatcher {
   private ExactJobDispatcher() {
-
+    // No instance
   }
 
   public static boolean schedule(Context context, String jobKey, long period, boolean override,
@@ -26,6 +26,7 @@ public class ExactJobDispatcher {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent);
     } else {
+      // Same was alarmManager.setExact on older versions
       alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent);
     }
     storeScheduledExactJob(context, jobKey);
