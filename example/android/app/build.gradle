@@ -86,7 +86,7 @@ def getUser() {
     System.getenv('USER')
 }
 
-ci = System.getenv('CI')
+def ci = System.getenv('CI')
 
 def getPassword(String currentUser, String keyChain) {
     if (ci == 'true') {
