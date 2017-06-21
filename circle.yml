@@ -1,13 +1,23 @@
 machine:
+  node:
+    version: 7
   environment:
-    ANDROID_NDK_HOME: ${ANDROID_NDK}
+    PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
+    JAVA_OPTS: "-Xms518m -Xmx2048m"
+    GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+
 dependencies:
-  cache_directories:
-    - ~/.m2
-    - ~/.gradle
   pre:
-    - cd example && yarn 
-    - cd android && ./gradlew dependencies
+    - echo y | android update sdk --no-ui --all --filter "tools,platform-tools,android-23"
+    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.1"
+  override:
+    - cd example/android && ./gradlew app:dependencies
+    - cd example && yarn
+  cache_directories:
+    - ~/.android
+    - ~/.gradle
+    - ~/.cache/yarn
+
 test:
   override:
     # start the emulator
