@@ -1,7 +1,7 @@
 dependencies:
   pre:
     - cd example && yarn 
-    - cd android && ./gradlew dependecies
+    - cd android && ./gradlew dependencies
 test:
   override:
     # start the emulator
