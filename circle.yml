@@ -32,3 +32,4 @@ test:
     - cd example/android && ./gradlew installDebug
     # run tests  against the emulator.
     - tests/assure-not-foreground.sh
+    - tests/bg-working.sh
