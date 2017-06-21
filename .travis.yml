@@ -1,0 +1,22 @@
+lanugage: android
+android:
+  components:
+    - build-tools-25.0.0
+
+    - android-22
+
+    - sys-img-armeabi-v7a-android-22
+
+before_script:
+  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+  - emulator -avd test -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
+
+install:
+  - cd example && yarn
+  - cd android && ./gradlew dependencies
+
+script:
+  - cd example && npm start &
+  - cd android && ./gradlew installDebug
