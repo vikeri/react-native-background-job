@@ -8,7 +8,7 @@ android:
     - sys-img-armeabi-v7a-android-22
 
 before_script:
-	- curl -o- -L https://yarnpkg.com/install.sh | bash
+  - curl -o- -L https://yarnpkg.com/install.sh | bash
   - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
   - emulator -avd test -no-audio -no-window &
   - android-wait-for-emulator
