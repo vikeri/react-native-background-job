@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Testing that the task is not run in foreground"
 adb logcat -c
 adb shell am force-stop com.backtest
 adb shell am start -n com.backtest/com.backtest.MainActivity

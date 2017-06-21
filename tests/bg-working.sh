@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Testing that a task is started when closing the app and waiting"
 adb logcat -c
 adb shell am force-stop com.backtest
 adb shell am start -n com.backtest/com.backtest.MainActivity
