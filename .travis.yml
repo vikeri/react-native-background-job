@@ -3,6 +3,9 @@ node_js:
   - "6"
 android:
   components:
+    - tools
+    - platform-tools
+    - tools
     - build-tools-25.0.0
     - android-22
     - sys-img-armeabi-v7a-android-22

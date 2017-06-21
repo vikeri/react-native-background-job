@@ -2,12 +2,12 @@
 adb logcat -c
 adb shell am force-stop com.backtest
 adb shell am start -n com.backtest/com.backtest.MainActivity
-sleep 50
+sleep 10
 adb shell am start -a android.intent.action.MAIN -c android.intent.category.HOME
 sleep 1
 #adb shell am force-stop com.backtest
 adb shell am kill com.backtest
-sleep 30
+sleep 15
 adb shell am start -n com.backtest/com.backtest.MainActivity
 if [[ -z $(adb logcat -d | grep "Background Job fired!") ]]; then
   adb logcat -d | grep "backgroundjob|ReactNativeJS"
