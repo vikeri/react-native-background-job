@@ -4,10 +4,12 @@ node_js:
 android:
   components:
     - build-tools-25.0.0
-
     - android-22
-
     - sys-img-armeabi-v7a-android-22
+    - extra-android-m2repository
+    - extra-google-google_play_services
+    - extra-google-m2repository
+    - addon-google_apis-google-16
 
 before_script:
   - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
