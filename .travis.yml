@@ -1,27 +1,17 @@
 language: android
 node_js:
   - "6"
-android:
-  components:
-    - tools
-    - platform-tools
-    - tools
-    - build-tools-25.0.0
-    - android-22
-    - sys-img-armeabi-v7a-android-22
-    - extra-android-m2repository
-    - extra-google-google_play_services
-    - extra-google-m2repository
-    - addon-google_apis-google-16
 
 before_script:
-  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+  - echo no | android create avd --force -n test -t android-23 --abi armeabi-v7a
   - emulator -avd test -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
 
 before_install:
   # Repo for Yarn
+  - echo y | android update sdk --no-ui --all --filter "android-23"
+  - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.0"
   - nvm install 6
   - sudo apt-key adv --keyserver pgp.mit.edu --recv D101F7899D41F3C3
   - echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
