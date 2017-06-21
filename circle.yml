@@ -2,7 +2,7 @@ machine:
   node:
     version: 7
   environment:
-    PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
+    PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/example/node_modules/.bin"
     JAVA_OPTS: "-Xms518m -Xmx2048m"
     GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
 
@@ -12,7 +12,7 @@ dependencies:
     - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.0"
   override:
     - cd example && yarn
-    - cd example/android && ./gradlew app:dependencies
+    - cd example/android && ./gradlew --stacktrace app:dependencies
   cache_directories:
     - ~/.android
     - ~/.gradle
