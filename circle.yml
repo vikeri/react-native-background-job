@@ -9,7 +9,7 @@ machine:
 dependencies:
   pre:
     - echo y | android update sdk --no-ui --all --filter "tools,platform-tools,android-23"
-    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.1"
+    - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.0"
   override:
     - cd example && yarn
     - cd example/android && ./gradlew app:dependencies
