@@ -1,4 +1,7 @@
 dependencies:
+  cache_directories:
+    - ~/.m2
+    - ~/.gradle
   pre:
     - cd example && yarn 
     - cd android && ./gradlew dependencies
