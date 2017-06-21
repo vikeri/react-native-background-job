@@ -4,6 +4,7 @@
 	"private": true,
 	"scripts": {
 		"start": "node node_modules/react-native/local-cli/cli.js start",
+        "postinstall": "rm -rf node_modules/react-native-background-job/example",
 		"test": "jest"
 	},
 	"dependencies": {
