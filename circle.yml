@@ -1,3 +1,6 @@
+machine:
+  environment:
+    ANDROID_NDK_HOME: ${ANDROID_NDK}
 dependencies:
   cache_directories:
     - ~/.m2
