@@ -22,9 +22,13 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.common.LifecycleState;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.pilloxa.backgroundjob.BackgroundJobModule;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static com.pilloxa.backgroundjob.BackgroundJobModule.isVisible;
+import static com.pilloxa.backgroundjob.BackgroundJobModule.time;
 
 public class HeadlessService extends HeadlessJsTaskService {
 
@@ -143,9 +147,11 @@ public class HeadlessService extends HeadlessJsTaskService {
 
         boolean alwaysRunning = intent.getIntExtra("alwaysRunning", 0) == 1;
 
+        long elapsedTime = System.currentTimeMillis() - time;
+
         HeadlessJsTaskConfig taskConfig = getTaskConfig(intent);
         if (taskConfig != null) {
-            if (mReactContext == null || !alwaysRunning) {
+            if ((mReactContext == null || !alwaysRunning) && (elapsedTime > 1000)) {
                 if (!isAppInForeground()) {
 //                    Log.d(LOG_TAG, "Starting task!");
                     startTask(taskConfig);
@@ -192,6 +198,10 @@ public class HeadlessService extends HeadlessJsTaskService {
         Bundle extras = intent.getExtras();
         String jobKey = extras.getString("jobKey");
         int timeout = extras.getInt("timeout");
+        if (isAppInForeground()) {
+            stopSelf();
+            return null;
+        }
         return new HeadlessJsTaskConfig(jobKey, Arguments.fromBundle(extras), timeout);
     }
 
@@ -213,13 +223,11 @@ public class HeadlessService extends HeadlessJsTaskService {
     }
 
     private boolean isAppInForeground() {
-        final ReactInstanceManager reactInstanceManager =
-                ((ReactApplication) getApplication())
-                        .getReactNativeHost()
-                        .getReactInstanceManager();
-        ReactContext reactContext =
-                reactInstanceManager.getCurrentReactContext();
-
-        return (reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED);
+//        if (isVisible) {
+//            Log.d(LOG_TAG, "Is visible");
+//        } else {
+//            Log.d(LOG_TAG, "Is not visible");
+//        }
+        return isVisible;
     }
 }
