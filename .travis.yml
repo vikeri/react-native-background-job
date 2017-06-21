@@ -23,6 +23,8 @@ before_install:
   - sudo apt-get install -y -qq yarn
 
 install:
+  - node -v
+  - yarn --version
   - cd example && yarn
   - cd android && ./gradlew dependencies
 
