@@ -1,6 +1,7 @@
 dependencies:
   pre:
     - cd example && yarn 
+    - cd android && ./gradlew dependecies
 test:
   override:
     # start the emulator
@@ -10,6 +11,7 @@ test:
     # wait for it to have booted
     - circle-android wait-for-boot
     # install react native
-    - cd example/android && ./gradlew installRelease
+    - cd example && npm start &
+    - cd example/android && ./gradlew installDebug
     # run tests  against the emulator.
     - tests/assure-not-foreground.sh
