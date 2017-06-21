@@ -1,6 +1,6 @@
 dependencies:
-	pre:
-		- cd example && yarn 
+  pre:
+    - cd example && yarn 
 test:
   override:
     # start the emulator
