@@ -8,16 +8,14 @@ machine:
 
 dependencies:
   pre:
-    - echo y | android update sdk --no-ui --all --filter "tools,platform-tools,android-23"
+    - echo y | android update sdk --no-ui --all --filter "android-23"
     - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.0"
   override:
-    - yarn
     - cd example && yarn
     - cd example/android && ./gradlew --stacktrace app:dependencies
   cache_directories:
     - ~/.android
     - ~/.gradle
-    - ~/.cache/yarn
 
 test:
   override:
@@ -28,7 +26,6 @@ test:
     # wait for it to have booted
     - circle-android wait-for-boot
     # install react native
-    - cd example && npm start &
     - cd example/android && ./gradlew installDebug
     # run tests  against the emulator.
     - tests/assure-not-foreground.sh

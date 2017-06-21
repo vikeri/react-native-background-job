@@ -68,7 +68,7 @@ import com.android.build.OutputFile
 def ci = System.getenv('CI') == 'true';
 if (ci) {
     project.ext.react = [
-            bundleInDebug: false
+            bundleInDebug: true
     ]
 }
 apply from: "../../node_modules/react-native/react.gradle"
