@@ -11,8 +11,8 @@ dependencies:
     - echo y | android update sdk --no-ui --all --filter "tools,platform-tools,android-23"
     - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.1"
   override:
-    - cd example/android && ./gradlew app:dependencies
     - cd example && yarn
+    - cd example/android && ./gradlew app:dependencies
   cache_directories:
     - ~/.android
     - ~/.gradle
