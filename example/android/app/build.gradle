@@ -95,7 +95,7 @@ def getUser() {
 
 def getPassword(String currentUser, String keyChain) {
     def ci = System.getenv('CI') == 'true';
-    if (ci == 'true') {
+    if (ci) {
         ''
     } else {
         def stdout = new ByteArrayOutputStream()
