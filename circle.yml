@@ -1,3 +1,6 @@
+dependencies:
+	pre:
+		- cd example && yarn 
 test:
   override:
     # start the emulator
@@ -6,5 +9,7 @@ test:
         parallel: true
     # wait for it to have booted
     - circle-android wait-for-boot
+    # install react native
+    - cd example/android && ./gradlew installRelease
     # run tests  against the emulator.
-    - test/assure-not-foreground.sh
+    - tests/assure-not-foreground.sh
