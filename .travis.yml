@@ -23,7 +23,6 @@ before_install:
   - sudo apt-get install -y -qq yarn
 
 install:
-  - curl -o- -L https://yarnpkg.com/install.sh | bash
   - cd example && yarn
   - cd android && ./gradlew dependencies
 
