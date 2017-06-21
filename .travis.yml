@@ -27,7 +27,7 @@ before_install:
 
 install:
   - node -v
-  - yarn --version
+  - yarn 
   - cd example && yarn
   - cd android && ./gradlew dependencies
 
