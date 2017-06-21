@@ -32,9 +32,14 @@ install:
   - cd android && ./gradlew dependencies
 
 script:
-  - cd example && npm start &
-  - cd android && ./gradlew installDebug
+  - cd example/android && ./gradlew installDebug
+
 
 cache:
   directories:
   - $HOME/.yarn-cache
+
+licenses:
+    - 'android-sdk-preview-license-.+'
+    - 'android-sdk-license-.+'
+    - 'google-gdk-license-.+'
