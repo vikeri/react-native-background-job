@@ -1,10 +1,33 @@
+machine:
+  node:
+    version: 7
+  environment:
+    PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/example/node_modules/.bin"
+    JAVA_OPTS: "-Xms518m -Xmx2048m"
+    GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+
+dependencies:
+  pre:
+    - echo y | android update sdk --no-ui --all --filter "android-23"
+    - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.0"
+  override:
+    - cd example && yarn
+    - cd example/android && ./gradlew --stacktrace app:dependencies
+  cache_directories:
+    - ~/.android
+    - ~/.gradle
+
 test:
   override:
     # start the emulator
-    - emulator -avd circleci-android24 -no-window:
+    - emulator -avd circleci-android22 -no-window:
         background: true
         parallel: true
     # wait for it to have booted
     - circle-android wait-for-boot
+    - adb shell pm grant com.backtest android.permission.SYSTEM_ALERT_WINDOW
+    # install react native
+    - cd example/android && ./gradlew installDebug
     # run tests  against the emulator.
-    - test/assure-not-foreground.sh
+    - tests/assure-not-foreground.sh
+    - tests/bg-working.sh

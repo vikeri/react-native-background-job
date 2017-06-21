@@ -100,8 +100,7 @@ export default class backtest extends Component {
     BackgroundJob.schedule({
       jobKey: myJobKey,
       period: 5000,
-      timeout: 5000,
-      networkType: BackgroundJob.NETWORK_TYPE_UNMETERED
+      timeout: 5000
     });
   }
 }

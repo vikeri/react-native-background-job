@@ -126,7 +126,6 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         mJobs.add(jobInfo);
 
         if (!isVisible) {
-//            Log.d(LOG_TAG, "NOT VISIBLE");
             scheduleJobs();
             startForegroundJob();
         }
@@ -207,7 +206,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
 
     private void stopService() {
         if (mService != null) {
-            Log.d(LOG_TAG, "Stopping Service");
+            Log.v(LOG_TAG, "Stopping Service");
             reactContext.stopService(mService);
             mService = null;
         }
@@ -216,7 +215,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
 
     @Override
     public void onHostResume() {
-//        Log.d(LOG_TAG, "Woke up");
+        Log.v(LOG_TAG, "Woke up");
         stopService();
         setVisible(true);
         mJobs = jobScheduler.getAllPendingJobs();
@@ -237,6 +236,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
 
     private void startForegroundJob() {
         if (mJobBundle != null) {
+            Log.d(LOG_TAG, "Starting foreground job");
             Intent service = new Intent(reactContext, HeadlessService.class);
             service.putExtras(mJobBundle);
             mService = service;
@@ -246,7 +246,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
 
     @Override
     public void onHostPause() {
-//        Log.d(LOG_TAG, "Pausing");
+        Log.v(LOG_TAG, "Pausing");
         setVisible(false);
         startForegroundJob();
         scheduleJobs();
@@ -256,6 +256,6 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     public void onHostDestroy() {
         setVisible(false);
         getReactApplicationContext().removeLifecycleEventListener(this);
-//        Log.d(LOG_TAG, "Destroyed");
+        Log.v(LOG_TAG, "Destroyed");
     }
 }

@@ -1,0 +1,33 @@
+language: android
+node_js:
+  - "6"
+
+before_script:
+  - echo no | android create avd --force -n test -t android-23 --abi armeabi-v7a
+  - emulator -avd test -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
+
+before_install:
+  # Repo for Yarn
+  - echo y | android update sdk --no-ui --all --filter "android-23"
+  - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.0"
+  - nvm install 6
+  - sudo apt-key adv --keyserver pgp.mit.edu --recv D101F7899D41F3C3
+  - echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+  - sudo apt-get update -qq
+  - sudo apt-get install -y -qq yarn
+
+install:
+  - node -v
+  - yarn 
+  - cd example && yarn
+  - cd android && ./gradlew dependencies
+
+script:
+  - cd example/android && ./gradlew installDebug
+
+
+cache:
+  directories:
+  - $HOME/.yarn-cache
