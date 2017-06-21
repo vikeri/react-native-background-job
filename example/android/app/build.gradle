@@ -86,7 +86,12 @@ def getUser() {
     System.getenv('USER')
 }
 
+ci = System.getenv('CI')
+
 def getPassword(String currentUser, String keyChain) {
+    if (ci == 'true') {
+     ''
+    } else {
     def stdout = new ByteArrayOutputStream()
     def stderr = new ByteArrayOutputStream()
     exec {
@@ -97,6 +102,7 @@ def getPassword(String currentUser, String keyChain) {
     }
     //noinspection GroovyAssignabilityCheck
     stdout.toString().trim()
+    }
 }
 
 def pass = getPassword(getUser(),"BGJBPASS");
