@@ -132,7 +132,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         Log.d(LOG_TAG, "Cancelling job: " + jobKey + " (" + taskId + ")");
         jobScheduler.cancel(taskId);
         mJobs = jobScheduler.getAllPendingJobs();
-        if (mJobBundle != null && mJobBundle.getString("jobKey") == jobKey) {
+        if (mJobBundle != null && mJobBundle.getString("jobKey").equals(jobKey)) {
             cancelService();
         }
     }
