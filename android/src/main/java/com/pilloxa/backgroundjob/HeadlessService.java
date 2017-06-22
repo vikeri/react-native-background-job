@@ -191,8 +191,9 @@ public class HeadlessService extends HeadlessJsTaskService {
 //        Log.d(LOG_TAG, "GETTING TASK CONFIG");
         Bundle extras = intent.getExtras();
         String jobKey = extras.getString("jobKey");
+        int allowedInForeground = extras.getInt("allowedInForeground", 0);
         int timeout = extras.getInt("timeout");
-        return new HeadlessJsTaskConfig(jobKey, Arguments.fromBundle(extras), timeout);
+        return new HeadlessJsTaskConfig(jobKey, Arguments.fromBundle(extras), timeout, allowedInForeground == 1);
     }
 
     @Override

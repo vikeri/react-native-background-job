@@ -63,13 +63,14 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
                          boolean requiresCharging,
                          boolean requiresDeviceIdle,
                          boolean alwaysRunning,
+                         boolean allowedInForeground,
                          String title,
                          String icon,
                          String text) {
         int taskId = jobKey.hashCode();
 
         Log.v(LOG_TAG,
-                String.format("Scheduling: %s, timeout: %s, period: %s, network type: %s, requiresCharging: %s, requiresDeviceIdle: %s, alwaysRunning: %s, notificationTitle: %s, notificationText %s, notificationIcon: %s",
+                String.format("Scheduling: %s, timeout: %s, period: %s, network type: %s, requiresCharging: %s, requiresDeviceIdle: %s, alwaysRunning: %s, allowedInForeground: %s, notificationTitle: %s, notificationText %s, notificationIcon: %s",
                         jobKey,
                         timeout,
                         period,
@@ -77,6 +78,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
                         requiresCharging,
                         requiresDeviceIdle,
                         alwaysRunning,
+                        allowedInForeground,
                         title,
                         text,
                         icon));
@@ -96,6 +98,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
         jobExtras.putInt("requiresCharging", requiresCharging ? 1 : 0);
         jobExtras.putInt("requiresDeviceIdle", requiresDeviceIdle ? 1 : 0);
         jobExtras.putInt("alwaysRunning", alwaysRunning ? 1 : 0);
+        jobExtras.putInt("allowedInForeground", allowedInForeground ? 1 : 0);
         if (alwaysRunning) {
             mJobBundle = new Bundle(jobExtras);
         } else {

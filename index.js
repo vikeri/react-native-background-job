@@ -80,6 +80,7 @@ const BackgroundJob = {
      * @param {boolean} [obj.requiresCharging = false] Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean))
      * @param {boolean} [obj.requiresDeviceIdle = false] Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean))
      * @param {boolean} [obj.alwaysRunning = false] Creates a foreground service that will keep the app alive forever. Suitable for music playback etc. Will always show a notification.
+     * @param {boolean} [obj.allowedInForeground = false] See doc in react-native HeadlessJS.
      * @param {string} obj.notificationTitle The title of the persistent notification when `alwaysRunning`
      * @param {string} obj.notificationText The text of the persistent notification when `alwaysRunning`
      * @param {string} obj.notificationIcon The icon string (in drawable) of the persistent notification when `alwaysRunning`
@@ -110,6 +111,7 @@ const BackgroundJob = {
     networkType = this.NETWORK_TYPE_NONE,
     requiresCharging = false,
     requiresDeviceIdle = false,
+    allowedInForeground = false,
     alwaysRunning = false,
     notificationTitle,
     notificationText,
@@ -136,6 +138,7 @@ const BackgroundJob = {
         requiresCharging,
         requiresDeviceIdle,
         alwaysRunning,
+        allowedInForeground,
         notificationTitle,
         notificationIcon,
         notificationText
