@@ -41,7 +41,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
   BackgroundJobModule(ReactApplicationContext reactContext) {
     super(reactContext);
   }
-  
+
   @ReactMethod
   public void schedule(String jobKey, int timeout, int period, boolean persist, boolean override,
       int networkType, boolean requiresCharging, boolean requiresDeviceIdle, boolean exact,
