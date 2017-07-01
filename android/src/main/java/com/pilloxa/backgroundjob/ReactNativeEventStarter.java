@@ -9,8 +9,6 @@ import com.facebook.react.HeadlessJsTaskService;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.common.LifecycleState;
 import com.facebook.react.jstasks.HeadlessJsTaskConfig;
 import javax.annotation.Nullable;
 
@@ -26,7 +24,7 @@ class ReactNativeEventStarter {
 
   public void trigger(@NonNull Bundle jobBundle) {
     Log.d(LOG_TAG, "trigger() called with: jobBundle = [" + jobBundle + "]");
-    boolean appInForeground = isAppInForeground();
+    boolean appInForeground = Utils.isReactNativeAppInForeground(reactNativeHost);
     boolean allowExecutionInForeground = jobBundle.getBoolean("allowExecutionInForeground", false);
     if (!appInForeground || allowExecutionInForeground) {
       // Will execute if the app is in background, or in forground but it has permision to do so
@@ -42,6 +40,13 @@ class ReactNativeEventStarter {
       Bundle extras = intent.getExtras();
       boolean allowExecutionInForeground = extras.getBoolean("allowExecutionInForeground", false);
       long timeout = extras.getLong("timeout", 2000);
+      // For task with quick execution period additional check is required
+      ReactNativeHost reactNativeHost =
+          ((ReactApplication) getApplicationContext()).getReactNativeHost();
+      boolean appInForeground = Utils.isReactNativeAppInForeground(reactNativeHost);
+      if (appInForeground) {
+        return null;
+      }
       return new HeadlessJsTaskConfig(intent.getStringExtra("jobKey"), Arguments.fromBundle(extras),
           timeout, allowExecutionInForeground);
     }
@@ -53,14 +58,5 @@ class ReactNativeEventStarter {
       starter.putExtras(jobBundle);
       context.startService(starter);
     }
-  }
-
-  private boolean isAppInForeground() {
-    if (!reactNativeHost.hasInstance()) {
-      // If the app was force-stopped the instace will be destroyed. The instance can't be created from a background thread.
-      return false;
-    }
-    ReactContext reactContext = reactNativeHost.getReactInstanceManager().getCurrentReactContext();
-    return reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED;
   }
 }
