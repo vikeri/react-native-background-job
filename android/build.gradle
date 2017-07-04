@@ -37,7 +37,7 @@ repositories {
 }
 
 dependencies {
-  compile 'com.firebase:firebase-jobdispatcher:0.6.0'
+  compile 'com.firebase:firebase-jobdispatcher:0.7.0'
   compile 'com.facebook.react:react-native:+'
 }
   
