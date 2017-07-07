@@ -97,6 +97,11 @@ export default class backtest extends Component {
   }
   componentDidMount() {
     this.getAll();
+    BackgroundJob.schedule({
+      jobKey: myJobKey,
+      period: 5000,
+      timeout: 5000
+    });
   }
 }
 
