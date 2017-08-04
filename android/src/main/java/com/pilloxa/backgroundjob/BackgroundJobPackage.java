@@ -17,7 +17,6 @@ public class BackgroundJobPackage implements ReactPackage {
       return Arrays.<NativeModule>asList(new BackgroundJobModule(reactContext));
     }
 
-    @Override
     public List<Class<? extends JavaScriptModule>> createJSModules() {
       return Collections.emptyList();
     }
