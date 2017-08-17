@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Build;
 import android.os.PersistableBundle;
 import android.util.Log;
 import com.facebook.react.bridge.*;
@@ -36,7 +37,7 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     @Override
     public void initialize() {
         Log.d(LOG_TAG, "Initializing BackgroundJob");
-        if (jobScheduler == null) {
+        if (jobScheduler == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             jobScheduler = (JobScheduler) reactContext
                     .getSystemService(Context.JOB_SCHEDULER_SERVICE);
             mJobs = jobScheduler.getAllPendingJobs();
@@ -209,13 +210,17 @@ public class BackgroundJobModule extends ReactContextBaseJavaModule implements L
     public void onHostResume() {
 //        Log.d(LOG_TAG, "Woke up");
         stopService();
-        mJobs = jobScheduler.getAllPendingJobs();
-        jobScheduler.cancelAll();
+        if (jobScheduler != null) {
+	    mJobs = jobScheduler.getAllPendingJobs();
+	    jobScheduler.cancelAll();
+	}
 
     }
 
 
     private void scheduleJobs() {
+        if (mJobs == null) return;
+
         for (JobInfo job : mJobs) {
             Log.d(LOG_TAG, "Sceduling job " + job.getId());
             jobScheduler.cancel(job.getId());

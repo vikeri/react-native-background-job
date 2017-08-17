@@ -10,11 +10,11 @@ const AppState = NativeModules.AppState;
 const tag = "BackgroundJob:";
 const jobModule = Platform.select({
   ios: {},
-  android: NativeModules.BackgroundJob
+  android: Platform.Version >= 21 ? NativeModules.BackgroundJob : {}
 });
 const nativeJobs = Platform.select({
   ios: { jobs: {} },
-  android: jobModule.jobs
+  android: Platform.Version >= 21 ? jobModule.jobs : { jobs: {} }
 });
 var jobs = {};
 var globalWarning = __DEV__;
@@ -23,6 +23,7 @@ const BackgroundJob = {
   NETWORK_TYPE_UNMETERED: jobModule.UNMETERED,
   NETWORK_TYPE_NONE: jobModule.NONE,
   NETWORK_TYPE_ANY: jobModule.ANY,
+  isSupported: Platform.OS == "android" && Platform.Version >= 21,
   /**
      * Registers jobs and the functions they should run. 
      * 
@@ -211,12 +212,12 @@ const BackgroundJob = {
     globalWarning = warn;
   }
 };
-if (Platform.OS == "ios") {
+if (Platform.OS == "ios" || Platform.Version < 21) {
   Object.keys(BackgroundJob).map(v => {
     BackgroundJob[v] = () => {
       if (globalWarning) {
         console.warn(
-          "react-native-background-job is not available on iOS yet. See https://github.com/vikeri/react-native-background-job#supported-platforms"
+          "react-native-background-job is not available on iOS or Android Version < 21. See https://github.com/vikeri/react-native-background-job#supported-platforms"
         );
       }
     };
