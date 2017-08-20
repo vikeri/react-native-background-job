@@ -10,7 +10,7 @@ sleep 1
 adb shell am kill com.backtest
 sleep 35
 adb shell am start -n com.backtest/com.backtest.MainActivity
-if [[ -z $(adb logcat -d | grep "Background Job fired!") ]]; then
+if [[ -z $(adb logcat -d | grep "Exact Job fired") ]]; then
   adb logcat -d | grep "backgroundjob|ReactNativeJS"
   echo "######################################"
   echo "Error: Task not started"

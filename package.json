@@ -1,6 +1,6 @@
 {
   "name": "react-native-background-job",
-  "version": "1.2.4",
+  "version": "2.0.0-0",
   "description": "Schedule background jobs in React Native that run your JavaScript when your app is in the background.",
   "main": "index.js",
   "repository": "https://github.com/vikeri/react-native-background-job",
@@ -21,7 +21,8 @@
   "devDependencies": {
     "husky": "^0.13.3",
     "lint-staged": "^3.4.0",
-    "prettier": "^1.2.2"
+    "prettier": "^1.2.2",
+    "documentation": "^4.0.0-rc.1"
   },
   "lint-staged": {
     "*.js": [
