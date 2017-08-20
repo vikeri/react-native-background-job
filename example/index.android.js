@@ -15,28 +15,39 @@ import {
 
 import BackgroundJob from "react-native-background-job";
 
-const myJobKey = "Hej";
+const regularJobKey = "regularJobKey";
+const exactJobKey = "exactJobKey";
+const foregroundJobKey = "foregroundJobKey";
 
 // This has to run outside of the component definition since the component is never
 // instantiated when running in headless mode
 BackgroundJob.register({
-  jobKey: myJobKey,
-  job: () => console.log("Background Job fired!")
+  jobKey: regularJobKey,
+  job: () => console.log(`Background Job fired!. Key = ${regularJobKey}`)
+});
+function sleepFor(sleepDuration) {
+  var now = new Date().getTime();
+  while (new Date().getTime() < now + sleepDuration) {
+    /* do nothing */
+  }
+}
+BackgroundJob.register({
+  jobKey: exactJobKey,
+  job: () => {
+    console.log(`${new Date()}Exact Job fired!. Key = ${exactJobKey}`);
+    sleepFor(16000);
+    console.log(`${new Date()}Exact job after wait`);
+  }
+});
+BackgroundJob.register({
+  jobKey: foregroundJobKey,
+  job: () => console.log(`Exact Job fired!. Key = ${foregroundJobKey}`)
 });
 
 export default class backtest extends Component {
   constructor(props) {
     super(props);
     this.state = { jobs: [] };
-  }
-
-  getAll() {
-    BackgroundJob.getAll({
-      callback: jobs => {
-        this.setState({ jobs });
-        console.log("Jobs:", jobs);
-      }
-    });
   }
 
   render() {
@@ -46,7 +57,8 @@ export default class backtest extends Component {
           Testing BackgroundJob
         </Text>
         <Text style={styles.instructions}>
-          Try connecting the device to the developer console, schedule an event and then quit the app.
+          Try connecting the device to the developer console, schedule an event
+          and then quit the app.
         </Text>
         <Text>
           Scheduled jobs:
@@ -56,51 +68,63 @@ export default class backtest extends Component {
           style={styles.button}
           onPress={() => {
             BackgroundJob.schedule({
-              jobKey: myJobKey,
-              period: 5000,
-              timeout: 5000,
-              networkType: BackgroundJob.NETWORK_TYPE_UNMETERED
+              jobKey: regularJobKey,
+              period: 15000
             });
-            this.getAll();
           }}
         >
-          <Text>Schedule</Text>
+          <Text>Schedule regular job</Text>
         </TouchableHighlight>
         <TouchableHighlight
           style={styles.button}
           onPress={() => {
-            BackgroundJob.cancel({ jobKey: myJobKey });
-            this.getAll();
+            BackgroundJob.schedule({
+              jobKey: exactJobKey,
+              period: 1000,
+              exact: true
+            });
           }}
         >
-          <Text>Cancel</Text>
+          <Text>Schedule exact job</Text>
+        </TouchableHighlight>
+        <TouchableHighlight
+          style={styles.button}
+          onPress={() => {
+            BackgroundJob.schedule({
+              jobKey: foregroundJobKey,
+              period: 1000,
+              exact: true,
+              allowExecutionInForeground: true
+            });
+          }}
+        >
+          <Text>Schedule exact foreground job</Text>
+        </TouchableHighlight>
+        <TouchableHighlight
+          style={styles.button}
+          onPress={() => {
+            BackgroundJob.cancel({ jobKey: regularJobKey });
+          }}
+        >
+          <Text>Cancel regular job</Text>
         </TouchableHighlight>
         <TouchableHighlight
           style={styles.button}
           onPress={() => {
             BackgroundJob.cancelAll();
-            this.getAll();
           }}
         >
           <Text>CancelAll</Text>
-        </TouchableHighlight>
-        <TouchableHighlight
-          style={styles.button}
-          onPress={() => {
-            BackgroundJob.getAll({ callback: console.log });
-          }}
-        >
-          <Text>GetAll</Text>
         </TouchableHighlight>
       </View>
     );
   }
   componentDidMount() {
-    this.getAll();
     BackgroundJob.schedule({
-      jobKey: myJobKey,
-      period: 5000,
-      timeout: 5000
+      jobKey: exactJobKey,
+      period: 60000,
+      timeout: 10000,
+      exact: true
     });
   }
 }

@@ -1,261 +1,137 @@
 package com.pilloxa.backgroundjob;
 
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
-import com.facebook.react.ReactApplication;
-import com.facebook.react.ReactInstanceManager;
-import com.facebook.react.bridge.*;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.common.LifecycleState;
-
-import javax.annotation.Nullable;
+import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.RetryStrategy;
+import com.firebase.jobdispatcher.Trigger;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import static com.facebook.react.common.ApplicationHolder.getApplication;
+import static com.firebase.jobdispatcher.FirebaseJobDispatcher.CANCEL_RESULT_SUCCESS;
+import static com.firebase.jobdispatcher.FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS;
 
-public class BackgroundJobModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
+class BackgroundJobModule extends ReactContextBaseJavaModule {
+  private static final String LOG_TAG = BackgroundJobModule.class.getSimpleName();
 
-    private String LOG_TAG = "backgroundjob";
-    private static final String NETWORK_TYPE_UNMETERED = "UNMETERED";
-    private static final String NETWORK_TYPE_NONE = "NONE";
-    private static final String NETWORK_TYPE_ANY = "ANY";
+  private static final String NETWORK_TYPE_UNMETERED = "UNMETERED";
+  private static final String NETWORK_TYPE_ANY = "ANY";
 
-    private final ReactApplicationContext reactContext;
+  private FirebaseJobDispatcher mJobDispatcher;
 
-    private List<JobInfo> mJobs;
-    private Bundle mJobBundle;
-
-    private JobScheduler jobScheduler;
-
-    private Intent mService;
-
-    @Override
-    public void initialize() {
-        Log.d(LOG_TAG, "Initializing BackgroundJob");
-        if (jobScheduler == null) {
-            jobScheduler = (JobScheduler) reactContext
-                    .getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            mJobs = jobScheduler.getAllPendingJobs();
-        }
-        super.initialize();
-        getReactApplicationContext().addLifecycleEventListener(this);
+  @Override public void initialize() {
+    super.initialize();
+    Log.d(LOG_TAG, "Initializing BackgroundJob");
+    if (mJobDispatcher == null) {
+      mJobDispatcher =
+          new FirebaseJobDispatcher(new GooglePlayDriver(getReactApplicationContext()));
     }
+  }
 
-    public BackgroundJobModule(ReactApplicationContext reactContext) {
-        super(reactContext);
-        this.reactContext = reactContext;
+  BackgroundJobModule(ReactApplicationContext reactContext) {
+    super(reactContext);
+  }
+
+  @ReactMethod
+  public void schedule(String jobKey, int timeout, int period, boolean persist, boolean override,
+      int networkType, boolean requiresCharging, boolean requiresDeviceIdle, boolean exact,
+      boolean allowExecutionInForeground, Callback callback) {
+    final Bundle jobBundle = new Bundle();
+    jobBundle.putString("jobKey", jobKey);
+    jobBundle.putLong("timeout", timeout);
+    jobBundle.putBoolean("persist", persist);
+    jobBundle.putBoolean("override", override);
+    jobBundle.putLong("period", period);
+    jobBundle.putInt("networkType", networkType);
+    jobBundle.putBoolean("requiresCharging", requiresCharging);
+    jobBundle.putBoolean("requiresDeviceIdle", requiresDeviceIdle);
+    jobBundle.putBoolean("allowExecutionInForeground", allowExecutionInForeground);
+
+    Log.d(LOG_TAG, "Scheduling job with:" + jobBundle.toString());
+
+    final boolean scheduled;
+    if (exact) {
+      scheduled = scheduleExactJob(jobKey, period, override, jobBundle);
+    } else {
+      scheduled =
+          scheduleBackgroundJob(jobKey, period, persist, override, networkType, requiresCharging,
+              jobBundle);
     }
+    callback.invoke(scheduled);
+  }
 
-    @ReactMethod
-    public void schedule(String jobKey,
-                         int timeout,
-                         int period,
-                         boolean persist,
-                         int networkType,
-                         boolean requiresCharging,
-                         boolean requiresDeviceIdle,
-                         boolean alwaysRunning,
-                         String title,
-                         String icon,
-                         String text) {
-        int taskId = jobKey.hashCode();
-
-        Log.v(LOG_TAG,
-                String.format("Scheduling: %s, timeout: %s, period: %s, network type: %s, requiresCharging: %s, requiresDeviceIdle: %s, alwaysRunning: %s, notificationTitle: %s, notificationText %s, notificationIcon: %s",
-                        jobKey,
-                        timeout,
-                        period,
-                        networkType,
-                        requiresCharging,
-                        requiresDeviceIdle,
-                        alwaysRunning,
-                        title,
-                        text,
-                        icon));
-
-        int persistInt = persist ? 1 : 0;
-
-        ComponentName componentName = new ComponentName(getReactApplicationContext(), BackgroundJob.class.getName());
-        PersistableBundle jobExtras = new PersistableBundle();
-        jobExtras.putString("jobKey", jobKey);
-        jobExtras.putString("notificationTitle", title);
-        jobExtras.putString("notificationIcon", icon);
-        jobExtras.putString("notificationText", text);
-        jobExtras.putInt("timeout", timeout);
-        jobExtras.putInt("persist", persistInt);
-        jobExtras.putInt("period", period);
-        jobExtras.putInt("networkType", networkType);
-        jobExtras.putInt("requiresCharging", requiresCharging ? 1 : 0);
-        jobExtras.putInt("requiresDeviceIdle", requiresDeviceIdle ? 1 : 0);
-        jobExtras.putInt("alwaysRunning", alwaysRunning ? 1 : 0);
-        if (alwaysRunning) {
-            mJobBundle = new Bundle(jobExtras);
-        } else {
-            mJobBundle = null;
-        }
-
-        JobInfo jobInfo = new JobInfo.Builder(taskId, componentName)
-                .setExtras(jobExtras)
-                .setRequiresDeviceIdle(requiresDeviceIdle)
-                .setRequiresCharging(requiresCharging)
-                .setPersisted(persist)
-                .setPeriodic(period)
-                .setRequiredNetworkType(networkType)
-                .build();
-
-        for (JobInfo iJobInfo : mJobs) {
-            if (iJobInfo.getId() == taskId) {
-                mJobs.remove(iJobInfo);
-            }
-        }
-        mJobs.add(jobInfo);
-
-        if (!isAppInForeground()) {
-            scheduleJobs();
-            startForegroundJob();
-        }
-
+  /**
+   * Schedule a new background job that will be triggered via {@link FirebaseJobDispatcher}.
+   */
+  private boolean scheduleBackgroundJob(String jobKey, int period, boolean persist,
+      boolean override, int networkType, boolean requiresCharging, Bundle jobBundle) {
+    int periodInSeconds = (int) TimeUnit.MILLISECONDS.toSeconds(period);
+    Job.Builder jobBuilder = mJobDispatcher.newJobBuilder()
+        .setService(BackgroundJob.class)
+        .setExtras(jobBundle)
+        .setTag(jobKey)
+        .setTrigger(Trigger.executionWindow(periodInSeconds, periodInSeconds))
+        .setLifetime(persist ? Lifetime.FOREVER : Lifetime.UNTIL_NEXT_BOOT)
+        .setRecurring(true)
+        .setReplaceCurrent(override)
+        .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR);
+    if (requiresCharging) {
+      jobBuilder.addConstraint(Constraint.DEVICE_CHARGING);
     }
-
-
-    @ReactMethod
-    public void cancel(String jobKey) {
-        int taskId = jobKey.hashCode();
-        Log.d(LOG_TAG, "Cancelling job: " + jobKey + " (" + taskId + ")");
-        jobScheduler.cancel(taskId);
-        mJobs = jobScheduler.getAllPendingJobs();
-        if (mJobBundle != null && mJobBundle.getString("jobKey").equals(jobKey)) {
-            cancelService();
-        }
+    if (networkType == Constraint.ON_ANY_NETWORK || networkType == Constraint.ON_UNMETERED_NETWORK) {
+      jobBuilder.addConstraint(networkType);
     }
-
-    @ReactMethod
-    public void cancelAll() {
-        Log.d(LOG_TAG, "Cancelling all jobs");
-        jobScheduler.cancelAll();
-        mJobs = jobScheduler.getAllPendingJobs();
-        cancelService();
+    if (mJobDispatcher.schedule(jobBuilder.build()) == SCHEDULE_RESULT_SUCCESS) {
+      Log.d(LOG_TAG, "Successfully scheduled: " + jobKey);
+      return true;
+    } else {
+      Log.w(LOG_TAG, "Failed to schedule: " + jobKey);
+      return false;
     }
+  }
 
-    private WritableArray _getAll() {
-        Log.d(LOG_TAG, "Getting all jobs");
-        WritableArray jobs = Arguments.createArray();
-        if (mJobs != null) {
-            for (JobInfo job : mJobs) {
-                Log.d(LOG_TAG, "Fetching job " + job.getId());
-                Bundle extras = new Bundle(job.getExtras());
-                WritableMap jobMap = Arguments.fromBundle(extras);
-                jobMap.putBoolean("persist", extras.getInt("persist") == 1);
-                jobMap.putBoolean("requiresCharging", extras.getInt("requiresCharging") == 1);
-                jobMap.putBoolean("requiresDeviceIdle", extras.getInt("requiresDeviceIdle") == 1);
-                jobMap.putBoolean("alwaysRunning", extras.getInt("alwaysRunning") == 1);
-                jobs.pushMap(jobMap);
-            }
-        }
+  /**
+   * Similar to scheduleBackgroundJob but will use simple custom implementation that will trigger
+   * the job in the exact manner.
+   */
+  private boolean scheduleExactJob(String jobKey, long period, boolean override, Bundle jobBundle) {
+    return ExactJobDispatcher.schedule(getReactApplicationContext(), jobKey, period, override,
+        jobBundle);
+  }
 
-        return jobs;
-    }
+  @ReactMethod public void cancel(String jobKey, Callback callback) {
+    Log.d(LOG_TAG, "Cancelling job: " + jobKey);
+    boolean canceled = ExactJobDispatcher.cancel(getReactApplicationContext(), jobKey);
+    canceled = mJobDispatcher.cancel(jobKey) == CANCEL_RESULT_SUCCESS || canceled;
+    callback.invoke(canceled);
+  }
 
-    @ReactMethod
-    public void getAll(Callback callback) {
-        WritableArray jobs = _getAll();
-        callback.invoke(jobs);
-    }
+  @ReactMethod public void cancelAll(Callback callback) {
+    Log.d(LOG_TAG, "Cancelling all jobs");
+    final boolean exactCanceled = ExactJobDispatcher.cancelAll(getReactApplicationContext());
+    final boolean allBackgroundCanceled = mJobDispatcher.cancelAll() == CANCEL_RESULT_SUCCESS;
+    callback.invoke(exactCanceled && allBackgroundCanceled);
+  }
 
-    @Override
-    public String getName() {
-        return "BackgroundJob";
-    }
+  @Override public String getName() {
+    return "BackgroundJob";
+  }
 
-    @Nullable
-    @Override
-    public Map<String, Object> getConstants() {
-        Log.d(LOG_TAG, "Getting constants");
-        jobScheduler = (JobScheduler) getReactApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        if (jobScheduler != null) {
-            mJobs = jobScheduler.getAllPendingJobs();
-        }
-        HashMap<String, Object> constants = new HashMap<>();
-        constants.put("jobs", _getAll());
-        constants.put(NETWORK_TYPE_UNMETERED, JobInfo.NETWORK_TYPE_UNMETERED);
-        constants.put(NETWORK_TYPE_ANY, JobInfo.NETWORK_TYPE_ANY);
-        constants.put(NETWORK_TYPE_NONE, JobInfo.NETWORK_TYPE_NONE);
-        return constants;
-    }
-
-
-    private void cancelService() {
-        stopService();
-        mJobBundle = null;
-    }
-
-    private void stopService() {
-        if (mService != null) {
-            Log.d(LOG_TAG, "Stopping Service");
-            reactContext.stopService(mService);
-            mService = null;
-        }
-    }
-
-
-    @Override
-    public void onHostResume() {
-//        Log.d(LOG_TAG, "Woke up");
-        stopService();
-        mJobs = jobScheduler.getAllPendingJobs();
-        jobScheduler.cancelAll();
-
-    }
-
-
-    private void scheduleJobs() {
-        for (JobInfo job : mJobs) {
-            Log.d(LOG_TAG, "Sceduling job " + job.getId());
-            jobScheduler.cancel(job.getId());
-            int result = jobScheduler.schedule(job);
-            if (result == JobScheduler.RESULT_SUCCESS)
-                Log.d(LOG_TAG, "Job (" + job.getId() + ") scheduled successfully!");
-        }
-    }
-
-    private void startForegroundJob() {
-        if (mJobBundle != null) {
-            Intent service = new Intent(reactContext, HeadlessService.class);
-            service.putExtras(mJobBundle);
-            mService = service;
-            reactContext.startService(service);
-        }
-    }
-
-    @Override
-    public void onHostPause() {
-//        Log.d(LOG_TAG, "Pausing");
-        startForegroundJob();
-        scheduleJobs();
-    }
-
-    @Override
-    public void onHostDestroy() {
-        getReactApplicationContext().removeLifecycleEventListener(this);
-//        Log.d(LOG_TAG, "Destroyed");
-    }
-
-    private boolean isAppInForeground() {
-        final ReactInstanceManager reactInstanceManager =
-                ((ReactApplication) getApplication())
-                        .getReactNativeHost()
-                        .getReactInstanceManager();
-        ReactContext reactContext =
-                reactInstanceManager.getCurrentReactContext();
-
-        return (reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED);
-    }
+  @Nullable @Override public Map<String, Object> getConstants() {
+    Log.d(LOG_TAG, "Getting constants");
+    HashMap<String, Object> constants = new HashMap<>();
+    constants.put(NETWORK_TYPE_UNMETERED, Constraint.ON_UNMETERED_NETWORK);
+    constants.put(NETWORK_TYPE_ANY, Constraint.ON_ANY_NETWORK);
+    return constants;
+  }
 }
