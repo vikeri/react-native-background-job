@@ -25,18 +25,10 @@ BackgroundJob.register({
   jobKey: regularJobKey,
   job: () => console.log(`Background Job fired!. Key = ${regularJobKey}`)
 });
-function sleepFor(sleepDuration) {
-  var now = new Date().getTime();
-  while (new Date().getTime() < now + sleepDuration) {
-    /* do nothing */
-  }
-}
 BackgroundJob.register({
   jobKey: exactJobKey,
   job: () => {
     console.log(`${new Date()}Exact Job fired!. Key = ${exactJobKey}`);
-    sleepFor(16000);
-    console.log(`${new Date()}Exact job after wait`);
   }
 });
 BackgroundJob.register({
@@ -122,7 +114,7 @@ export default class backtest extends Component {
   componentDidMount() {
     BackgroundJob.schedule({
       jobKey: exactJobKey,
-      period: 60000,
+      period: 1000,
       timeout: 10000,
       exact: true
     });
