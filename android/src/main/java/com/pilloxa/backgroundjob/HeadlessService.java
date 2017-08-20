@@ -22,13 +22,9 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.common.LifecycleState;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.pilloxa.backgroundjob.BackgroundJobModule;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.pilloxa.backgroundjob.BackgroundJobModule.isVisible;
-import static com.pilloxa.backgroundjob.BackgroundJobModule.time;
 
 public class HeadlessService extends HeadlessJsTaskService {
 
@@ -50,11 +46,11 @@ public class HeadlessService extends HeadlessJsTaskService {
 
     private void sendEvent() {
         if (isAppInForeground()) {
-            Log.v(LOG_TAG, "APP IS IN FOREGROUND");
+//            Log.d(LOG_TAG, "APP IS IN FOREGROUND");
             cancelTimer();
             stopSelf();
         } else {
-            Log.v(LOG_TAG, "TIMER RAN!");
+//            Log.d(LOG_TAG, "TIMER RAN!");
             mReactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("RNBackgroundJob", null);
         }
@@ -62,6 +58,7 @@ public class HeadlessService extends HeadlessJsTaskService {
 
     @Override
     public void onCreate() {
+//        Log.d(LOG_TAG, "On create");
         super.onCreate();
     }
 
@@ -81,6 +78,7 @@ public class HeadlessService extends HeadlessJsTaskService {
     private void showNotification(Intent intent) {
         if (mTimer == null) {
             mTimer = new Timer();
+//            Log.d(LOG_TAG, "CREATING NEW TIMER");
             int period = intent.getIntExtra("period", 15000);
             mTimer.schedule(new TimerTask() {
                 @Override
@@ -134,8 +132,10 @@ public class HeadlessService extends HeadlessJsTaskService {
             setReactContext(null);
         }
 
+//        Log.d(LOG_TAG, "onStartCommand");
 
         if (isAppInForeground()) {
+//            Log.d(LOG_TAG, "APP IS IN FOREGROUND");
             cancelTimer();
             stopSelf();
             return Service.START_REDELIVER_INTENT;
@@ -143,24 +143,24 @@ public class HeadlessService extends HeadlessJsTaskService {
 
         boolean alwaysRunning = intent.getIntExtra("alwaysRunning", 0) == 1;
 
-        long elapsedTime = System.currentTimeMillis() - time;
-
         HeadlessJsTaskConfig taskConfig = getTaskConfig(intent);
         if (taskConfig != null) {
-            if ((mReactContext == null || !alwaysRunning) && (elapsedTime > 1000)) {
+            if (mReactContext == null || !alwaysRunning) {
                 if (!isAppInForeground()) {
-                    Log.v(LOG_TAG, "Starting task!");
+//                    Log.d(LOG_TAG, "Starting task!");
                     startTask(taskConfig);
                 } else {
-                    Log.v(LOG_TAG, "Not starting task, still in bg");
+//                    Log.d(LOG_TAG, "Not starting task, still in bg");
                 }
             }
         } else {
+//            Log.d(LOG_TAG, "NOT STARTING TASK");
             return START_REDELIVER_INTENT;
         }
 
         if (alwaysRunning) {
             if (mReactContext == null) {
+//                Log.d(LOG_TAG, "mReactContext == null");
                 reactInstanceManager
                         .addReactInstanceEventListener(new ReactInstanceManager.ReactInstanceEventListener() {
                             @Override
@@ -171,9 +171,11 @@ public class HeadlessService extends HeadlessJsTaskService {
                             }
                         });
                 if (!reactInstanceManager.hasStartedCreatingInitialContext()) {
+//                    Log.d(LOG_TAG, "Creating React Context In Background");
                     reactInstanceManager.createReactContextInBackground();
                 }
             } else {
+//                Log.d(LOG_TAG, "mReactContext != null");
                 showNotification(intent);
             }
             return START_STICKY;
@@ -190,22 +192,18 @@ public class HeadlessService extends HeadlessJsTaskService {
         Bundle extras = intent.getExtras();
         String jobKey = extras.getString("jobKey");
         int timeout = extras.getInt("timeout");
-        if (isAppInForeground()) {
-            stopSelf();
-            return null;
-        }
         return new HeadlessJsTaskConfig(jobKey, Arguments.fromBundle(extras), timeout);
     }
 
     @Override
     public void onHeadlessJsTaskFinish(int taskId) {
-        Log.v(LOG_TAG, "Task finished");
+//        Log.d(LOG_TAG, "TASK FINISHED");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.v(LOG_TAG, "In destroyed");
+//        Log.i(LOG_TAG, "In destroyed");
     }
 
     @Nullable
@@ -215,7 +213,13 @@ public class HeadlessService extends HeadlessJsTaskService {
     }
 
     private boolean isAppInForeground() {
-        Log.v(LOG_TAG, "Is visible: " + isVisible);
-        return isVisible;
+        final ReactInstanceManager reactInstanceManager =
+                ((ReactApplication) getApplication())
+                        .getReactNativeHost()
+                        .getReactInstanceManager();
+        ReactContext reactContext =
+                reactInstanceManager.getCurrentReactContext();
+
+        return (reactContext != null && reactContext.getLifecycleState() == LifecycleState.RESUMED);
     }
 }
