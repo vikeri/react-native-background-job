@@ -194,7 +194,7 @@ public class HeadlessService extends HeadlessJsTaskService {
             stopSelf();
             return null;
         }
-        return new HeadlessJsTaskConfig(jobKey, Arguments.fromBundle(extras), timeout);
+        return new HeadlessJsTaskConfig(jobKey, Arguments.fromBundle(extras), timeout, true);
     }
 
     @Override
