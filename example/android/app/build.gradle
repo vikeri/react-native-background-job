@@ -125,12 +125,12 @@ android {
     }
 
     signingConfigs {
-        release {
-            storeFile file("bgjb.keystore")
-            storePassword pass
-            keyAlias "bgjb"
-            keyPassword pass
-        }
+        //release {
+            //storeFile file("bgjb.keystore")
+            //storePassword pass
+            //keyAlias "bgjb"
+            //keyPassword pass
+        //}
     }
 
     splits {
@@ -142,11 +142,11 @@ android {
         }
     }
     buildTypes {
-        release {
-            minifyEnabled enableProguardInReleaseBuilds
-            signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-        }
+        //release {
+            //minifyEnabled enableProguardInReleaseBuilds
+            //signingConfig signingConfigs.release
+            //proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        //}
     }
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
