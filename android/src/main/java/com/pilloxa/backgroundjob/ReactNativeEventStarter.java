@@ -44,7 +44,7 @@ class ReactNativeEventStarter {
       ReactNativeHost reactNativeHost =
           ((ReactApplication) getApplicationContext()).getReactNativeHost();
       boolean appInForeground = Utils.isReactNativeAppInForeground(reactNativeHost);
-      if (appInForeground) {
+      if (appInForeground && !allowExecutionInForeground) {
         return null;
       }
       return new HeadlessJsTaskConfig(intent.getStringExtra("jobKey"), Arguments.fromBundle(extras),
