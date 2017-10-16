@@ -116,7 +116,8 @@ export default class backtest extends Component {
       jobKey: exactJobKey,
       period: 1000,
       timeout: 10000,
-      exact: true
+      exact: true,
+      allowWhileIdle:true
     });
   }
 }

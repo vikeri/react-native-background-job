@@ -17,8 +17,8 @@ android {
   defaultConfig {
     minSdkVersion 16
     targetSdkVersion 25
-    versionCode 2
-    versionName "2.0"
+    versionCode 3
+    versionName "2.1"
     ndk {
       abiFilters "armeabi-v7a", "x86"
     }
