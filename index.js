@@ -181,6 +181,19 @@ const BackgroundJob = {
      */
   setGlobalWarnings: function(warn) {
     globalWarning = warn;
+  },
+  /**
+   * Checks Whether app is optimising battery using Doze,returns Boolean.
+   * 
+   * @example
+   * import BackgroundJob from 'react-native-background-job';
+   * 
+   * BackgroundJob.isAppIgnoringBatteryOptimisation();
+   */
+  isAppIgnoringBatteryOptimisation:function(){
+    jobModule.isAppIgnoringBatteryOptimization(optimising=>{
+      return optimising;
+    });
   }
 };
 if (Platform.OS == "ios") {
