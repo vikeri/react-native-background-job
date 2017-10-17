@@ -128,7 +128,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
     final boolean allBackgroundCanceled = mJobDispatcher.cancelAll() == CANCEL_RESULT_SUCCESS;
     callback.invoke(exactCanceled && allBackgroundCanceled);
   }
-  @ReactMethod public void isAppIgnoringBatteryOptimisation(Callback callback){
+  @ReactMethod public void isAppIgnoringBatteryOptimization(Callback callback){
     String packageName = getReactApplicationContext().getPackageName();
     PowerManager pm = (PowerManager) getReactApplicationContext().getSystemService(Context.POWER_SERVICE);
     if(Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
