@@ -191,9 +191,11 @@ const BackgroundJob = {
    * BackgroundJob.isAppIgnoringBatteryOptimisation();
    */
   isAppIgnoringBatteryOptimization:function(){
-    jobModule.isAppIgnoringBatteryOptimization(optimizing=>{
+
+    return jobModule.isAppIgnoringBatteryOptimization(optimizing=>{
       return optimizing;
-    });
+    }
+    );
   }
 };
 if (Platform.OS == "ios") {
