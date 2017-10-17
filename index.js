@@ -190,9 +190,9 @@ const BackgroundJob = {
    * 
    * BackgroundJob.isAppIgnoringBatteryOptimisation();
    */
-  isAppIgnoringBatteryOptimisation:function(){
-    jobModule.isAppIgnoringBatteryOptimization(optimising=>{
-      return optimising;
+  isAppIgnoringBatteryOptimization:function(){
+    jobModule.isAppIgnoringBatteryOptimization(optimizing=>{
+      return optimizing;
     });
   }
 };
