@@ -185,18 +185,24 @@ const BackgroundJob = {
   /**
    * Checks Whether app is optimising battery using Doze,returns Boolean.
    * 
+   * @param {Callback} callback gets called with according parameters after result is received from Android module.
    * @example
    * import BackgroundJob from 'react-native-background-job';
    * 
    * BackgroundJob.isAppIgnoringBatteryOptimisation();
    */
-  isAppIgnoringBatteryOptimization:function(){
-
-    return jobModule.isAppIgnoringBatteryOptimization(optimizing=>{
-      return optimizing;
-    }
-    );
-  }
+  isAppIgnoringBatteryOptimization:function(callback){
+    
+        jobModule.isAppIgnoringBatteryOptimization(optimizing=>{
+          if(optimizing!=null){
+            callback("",optimizing);
+          }
+          else{
+            callback("error",null);
+          }
+        }
+        );
+      }
 };
 if (Platform.OS == "ios") {
   Object.keys(BackgroundJob).map(v => {
