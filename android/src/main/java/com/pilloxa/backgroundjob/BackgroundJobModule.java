@@ -131,7 +131,7 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
   @ReactMethod public void isAppIgnoringBatteryOptimization(Callback callback){
     String packageName = getReactApplicationContext().getPackageName();
     PowerManager pm = (PowerManager) getReactApplicationContext().getSystemService(Context.POWER_SERVICE);
-    if(Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       callback.invoke(pm.isIgnoringBatteryOptimizations(packageName));
     }else{
       callback.invoke(true);
