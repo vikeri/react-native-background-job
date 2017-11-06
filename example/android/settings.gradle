@@ -1,5 +1,3 @@
 rootProject.name = 'backtest'
-include ':react-native-background-job'
-project(':react-native-background-job').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-background-job/android')
 
 include ':app'

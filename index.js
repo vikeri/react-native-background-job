@@ -69,8 +69,9 @@ const BackgroundJob = {
      * @param {boolean} [obj.requiresCharging = false] Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean))
      * @param {boolean} [obj.requiresDeviceIdle = false] Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean))
      * @param {boolean} [obj.exact = false] Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things.
+     * @param {boolean} [obj.allowWhileIdle=false] Allow the scheduled job to execute also while it is in doze mode.
      * @param {boolean} [obj.allowExecutionInForeground = false]  Allow the scheduled job to be executed even when the app is in foreground. Use it only for short running jobs. 
-     *
+     * 
      * @example
      * import BackgroundJob from 'react-native-background-job';
      *
@@ -97,6 +98,7 @@ const BackgroundJob = {
     requiresCharging = false,
     requiresDeviceIdle = false,
     exact = false,
+    allowWhileIdle=false,
     allowExecutionInForeground = false
   }) {
     const savedJob = jobs[jobKey];
@@ -116,6 +118,7 @@ const BackgroundJob = {
         requiresCharging,
         requiresDeviceIdle,
         exact,
+        allowWhileIdle,
         allowExecutionInForeground,
         scheduled => {
           console.log(
@@ -178,7 +181,28 @@ const BackgroundJob = {
      */
   setGlobalWarnings: function(warn) {
     globalWarning = warn;
-  }
+  },
+  /**
+   * Checks Whether app is optimising battery using Doze,returns Boolean.
+   * 
+   * @param {Callback} callback gets called with according parameters after result is received from Android module.
+   * @example
+   * import BackgroundJob from 'react-native-background-job';
+   * 
+   * BackgroundJob.isAppIgnoringBatteryOptimisation();
+   */
+  isAppIgnoringBatteryOptimization:function(callback){
+    
+        jobModule.isAppIgnoringBatteryOptimization(optimizing=>{
+          if(optimizing!=null){
+            callback("",optimizing);
+          }
+          else{
+            callback("error",null);
+          }
+        }
+        );
+      }
 };
 if (Platform.OS == "ios") {
   Object.keys(BackgroundJob).map(v => {
