@@ -120,6 +120,7 @@ This only has to be run once while `register` has to be run on each initializati
     -   `obj.requiresCharging` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean)) (optional, default `false`)
     -   `obj.requiresDeviceIdle` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean)) (optional, default `false`)
     -   `obj.exact` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things. (optional, default `false`)
+    -   `obj.allowWhileIdle` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Allow the scheduled job to execute also while it is in doze mode. (optional, default `false`)
     -   `obj.allowExecutionInForeground` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Allow the scheduled job to be executed even when the app is in foreground. Use it only for short running jobs. (optional, default `false`)
 
 **Examples**
@@ -184,6 +185,22 @@ Sets the global warning level
 import BackgroundJob from 'react-native-background-job';
 
 BackgroundJob.setGlobalWarnings(false);
+```
+
+### isAppIgnoringBatteryOptimization
+
+Checks Whether app is optimising battery using Doze,returns Boolean.
+
+**Parameters**
+
+-   `callback` **Callback** gets called with according parameters after result is received from Android module.
+
+**Examples**
+
+```javascript
+import BackgroundJob from 'react-native-background-job';
+
+BackgroundJob.isAppIgnoringBatteryOptimisation();
 ```
 
 ## Debugging
