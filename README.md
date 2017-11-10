@@ -200,7 +200,7 @@ Checks Whether app is optimising battery using Doze,returns Boolean.
 ```javascript
 import BackgroundJob from 'react-native-background-job';
 
-BackgroundJob.isAppIgnoringBatteryOptimisation();
+BackgroundJob.isAppIgnoringBatteryOptimisation((error,ignoringOptimization)=>{});
 ```
 
 ## Debugging
@@ -233,6 +233,21 @@ This is a [React Native issue](https://github.com/facebook/react-native/issues/1
 ### My job always runs in the background even if I specified `requiresCharging`, `requiresDeviceIdle` or a specific `networkType`
 
 This is an [Android issue](https://code.google.com/p/android/issues/detail?id=81265), it seems that you can not have these restrictions at the same time as you have a periodic interval for pre Android N devices.
+
+## Pull Request Details
+
+###Included function for checking if the app is ignoring battery optimizations. #62
+
+In Android SDK versions greater than 23, Doze is being used by apps by default, in order to optimize battery by temporarily turning off background tasks when the phone is left undisturbed for some hours.
+
+But, some apps may require background tasks to keep running, ignoring doze and not optimizing battery (this means battery needs to be traded off for performance as per required). Apps that require continuous syncing of data to the server at short intervals of time are examples of such apps.
+
+It would be good if the developer can check whether the app is optimizing battery. If it is, the user can be notified that the app would not perform as per expected and it will work properly only if the user manually removes it from the battery optimizing apps list which can be found in
+Settings-> Battery -> Options (button on top right) -> Battery Optimization and then selecting "All Apps" to change the battery optimization settings for the particular app.
+
+The Changes that have been made are specifically for that purpose, a function  (isAppIgnoringBatteryOptimization) has been included. It checks if the app is ignoring battery optimization and returns false if it is optimizing battery (in which case the user has to manually remove it from battery settings) and true otherwise.
+
+Logic has also been added for scheduling the task by ignoring battery optimizations, if the app has been manually removed from the battery optimization list in settings (by the User).
 
 ## Sponsored by
 
