@@ -131,22 +131,22 @@ const BackgroundJob = {
     }
   },
   /**
-   * Cancel a specific job
-   *
-   * @param {Object} obj
-   * @param {string} obj.jobKey The unique key for the job
-   *
-   * @example
-   * import BackgroundJob from 'react-native-background-job';
-   *
-   * BackgroundJob.cancel({jobKey: 'myJob'});
-   */
+     * Cancel a specific job
+     *
+     * @param {Object} obj
+     * @param {string} obj.jobKey The unique key for the job
+     *
+     * @example
+     * import BackgroundJob from 'react-native-background-job';
+     *
+     * BackgroundJob.cancel({jobKey: 'myJob'});
+     */
   cancel: function({ jobKey }) {
     jobModule.cancel(jobKey, canceled => {
       console.log(
-        `The job ${jobKey} was ${
-          canceled ? "successfully" : "unsuccessfully"
-        } canceled.`
+        `The job ${jobKey} was ${canceled
+          ? "successfully"
+          : "unsuccessfully"} canceled.`
       );
     });
   },
