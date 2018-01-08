@@ -120,6 +120,7 @@ This only has to be run once while `register` has to be run on each initializati
     -   `obj.requiresCharging` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean)) (optional, default `false`)
     -   `obj.requiresDeviceIdle` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean)) (optional, default `false`)
     -   `obj.exact` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things. (optional, default `false`)
+    -   `obj.allowWhileIdle` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Allow the scheduled job to execute also while it is in doze mode. (optional, default `false`)
     -   `obj.allowExecutionInForeground` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Allow the scheduled job to be executed even when the app is in foreground. Use it only for short running jobs. (optional, default `false`)
 
 **Examples**
@@ -186,6 +187,22 @@ import BackgroundJob from 'react-native-background-job';
 BackgroundJob.setGlobalWarnings(false);
 ```
 
+### isAppIgnoringBatteryOptimization
+
+Checks Whether app is optimising battery using Doze,returns Boolean.
+
+**Parameters**
+
+-   `callback` **Callback** gets called with according parameters after result is received from Android module.
+
+**Examples**
+
+```javascript
+import BackgroundJob from 'react-native-background-job';
+
+BackgroundJob.isAppIgnoringBatteryOptimisation((error,ignoringOptimization)=>{});
+```
+
 ## Debugging
 
 If you are using Android API +25 you can manually trigger the jobs by using the following command in a terminal:
@@ -216,6 +233,21 @@ This is a [React Native issue](https://github.com/facebook/react-native/issues/1
 ### My job always runs in the background even if I specified `requiresCharging`, `requiresDeviceIdle` or a specific `networkType`
 
 This is an [Android issue](https://code.google.com/p/android/issues/detail?id=81265), it seems that you can not have these restrictions at the same time as you have a periodic interval for pre Android N devices.
+
+## Pull Request Details
+
+###Included function for checking if the app is ignoring battery optimizations. #62
+
+In Android SDK versions greater than 23, Doze is being used by apps by default, in order to optimize battery by temporarily turning off background tasks when the phone is left undisturbed for some hours.
+
+But, some apps may require background tasks to keep running, ignoring doze and not optimizing battery (this means battery needs to be traded off for performance as per required). Apps that require continuous syncing of data to the server at short intervals of time are examples of such apps.
+
+It would be good if the developer can check whether the app is optimizing battery. If it is, the user can be notified that the app would not perform as per expected and it will work properly only if the user manually removes it from the battery optimizing apps list which can be found in
+Settings-> Battery -> Options (button on top right) -> Battery Optimization and then selecting "All Apps" to change the battery optimization settings for the particular app.
+
+The Changes that have been made are specifically for that purpose, a function  (isAppIgnoringBatteryOptimization) has been included. It checks if the app is ignoring battery optimization and returns false if it is optimizing battery (in which case the user has to manually remove it from battery settings) and true otherwise.
+
+Logic has also been added for scheduling the task by ignoring battery optimizations, if the app has been manually removed from the battery optimization list in settings (by the User).
 
 ## Sponsored by
 

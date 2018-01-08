@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,8 +24,13 @@ public class ExactJobDispatcher {
     intent.putExtras(jobBundle);
     PendingIntent pendingIntent = PendingIntent.getService(context, jobKey.hashCode(), intent,
         override ? PendingIntent.FLAG_CANCEL_CURRENT : PendingIntent.FLAG_ONE_SHOT);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-      alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ) {
+      if(jobBundle.getBoolean("allowWhileIdle") && Build.VERSION.SDK_INT > Build.VERSION_CODES.M){
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,triggerAt,pendingIntent);
+      }
+      else {
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent);
+      }
     } else {
       // Same was alarmManager.setExact on older versions
       alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent);
