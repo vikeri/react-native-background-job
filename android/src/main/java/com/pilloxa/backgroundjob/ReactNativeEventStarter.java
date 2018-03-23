@@ -11,6 +11,11 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.jstasks.HeadlessJsTaskConfig;
 import javax.annotation.Nullable;
+import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 
 class ReactNativeEventStarter {
   private static final String LOG_TAG = ReactNativeEventStarter.class.getSimpleName();
@@ -35,6 +40,29 @@ class ReactNativeEventStarter {
   public static class MyHeadlessJsTaskService extends HeadlessJsTaskService {
     private static final String LOG_TAG = MyHeadlessJsTaskService.class.getSimpleName();
 
+    @Override
+    @SuppressLint("WrongConstant")
+    public void onCreate() {
+      super.onCreate();
+
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        Context mContext = this.getApplicationContext();
+        String CHANNEL_ID = "Background job";
+
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_ID, NotificationManager.IMPORTANCE_LOW);
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+
+        Notification notification =
+                new Notification.Builder(mContext, CHANNEL_ID)
+                        .setContentTitle("Running background job")
+                        .setContentText(mContext.getPackageName())
+                        .setSmallIcon(R.drawable.ic_notification)
+                        .build();
+
+        startForeground(1, notification);
+      }
+    }
+
     @Nullable @Override protected HeadlessJsTaskConfig getTaskConfig(Intent intent) {
       Log.d(LOG_TAG, "getTaskConfig() called with: intent = [" + intent + "]");
       Bundle extras = intent.getExtras();
@@ -56,7 +84,12 @@ class ReactNativeEventStarter {
           "start() called with: context = [" + context + "], jobBundle = [" + jobBundle + "]");
       Intent starter = new Intent(context, MyHeadlessJsTaskService.class);
       starter.putExtras(jobBundle);
-      context.startService(starter);
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        context.startForegroundService(starter);
+      }else{
+        context.startService(starter);
+      }
     }
   }
 }
