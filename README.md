@@ -49,19 +49,20 @@ or
 
 #### Android
 
-1.  Open up `android/app/src/main/java/[...]/MainActivity.java`
-    -   Add `import com.pilloxa.backgroundjob.BackgroundJobPackage;` to the imports at the top of the file
-    -   Add `new BackgroundJobPackage()` to the list returned by the `getPackages()` method in `MainApplication.java`
+1.  Open up `android/app/src/main/java/[...]/MainApplication.java`
+    -   Add `import com.pilloxa.backgroundjob.BackgroundJobPackage;` to the imports at the top of the file.
+    -   Add `new BackgroundJobPackage()` to the list returned by the `getPackages()` method.
+
 2.  Append the following lines to `android/settings.gradle`:
-
-
-            include ':react-native-background-job'
-            project(':react-native-background-job').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-background-job/android')
+```
+include ':react-native-background-job'
+project(':react-native-background-job').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-background-job/android')
+```
 
 3.  Insert the following lines inside the dependencies block in `android/app/build.gradle` and bump the minSdkVersion to 21:
-
-
-              compile project(':react-native-background-job')
+```
+compile project(':react-native-background-job')
+```
 
 ## Usage
 
