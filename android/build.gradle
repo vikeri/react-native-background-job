@@ -9,14 +9,19 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
+def DEFAULT_COMPILE_SDK_VERSION = 27
+def DEFAULT_BUILD_TOOLS_VERSION = '25.0.3'
+def DEFAULT_TARGET_SDK_VERSION = 27
+
 android {
-  compileSdkVersion 27
-  buildToolsVersion '25.0.3'
+  compileSdkVersion project.hasProperty('compileSdkVersion') ? project.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
+  buildToolsVersion project.hasProperty('buildToolsVersion') ? project.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
+
   // Uncomment to develop with yarn link into node_modules
   //    compileOptions.incremental = false
   defaultConfig {
     minSdkVersion 16
-    targetSdkVersion 27
+    targetSdkVersion project.hasProperty('targetSdkVersion') ? project.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
     versionCode 2
     versionName "2.0"
     ndk {
