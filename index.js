@@ -189,7 +189,7 @@ const BackgroundJob = {
    * @example
    * import BackgroundJob from 'react-native-background-job';
    *
-   * BackgroundJob.isAppIgnoringBatteryOptimisation((error,ignoringOptimization)=>{});
+   * BackgroundJob.isAppIgnoringBatteryOptimization((error,ignoringOptimization)=>{});
    */
   isAppIgnoringBatteryOptimization: function(callback) {
     jobModule.isAppIgnoringBatteryOptimization(ignoringOptimization => {
