@@ -201,7 +201,7 @@ Checks Whether app is optimising battery using Doze,returns Boolean.
 ```javascript
 import BackgroundJob from 'react-native-background-job';
 
-BackgroundJob.isAppIgnoringBatteryOptimisation((error,ignoringOptimization)=>{});
+BackgroundJob.isAppIgnoringBatteryOptimization((error,ignoringOptimization)=>{});
 ```
 
 ## Debugging
