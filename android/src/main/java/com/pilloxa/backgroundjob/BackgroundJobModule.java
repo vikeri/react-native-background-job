@@ -50,9 +50,11 @@ class BackgroundJobModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void schedule(String jobKey, int timeout, int period, boolean persist, boolean override,
       int networkType, boolean requiresCharging, boolean requiresDeviceIdle, boolean exact,boolean allowWhileIdle,
-      boolean allowExecutionInForeground, Callback callback) {
+      boolean allowExecutionInForeground, String notificationTitle, String notificationText, Callback callback) {
     final Bundle jobBundle = new Bundle();
     jobBundle.putString("jobKey", jobKey);
+    jobBundle.putString("notificationTitle", notificationTitle);
+    jobBundle.putString("notificationText", notificationText);
     jobBundle.putLong("timeout", timeout);
     jobBundle.putBoolean("persist", persist);
     jobBundle.putBoolean("override", override);

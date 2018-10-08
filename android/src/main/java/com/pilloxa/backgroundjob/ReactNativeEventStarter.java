@@ -2,6 +2,7 @@ package com.pilloxa.backgroundjob;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -21,6 +22,9 @@ class ReactNativeEventStarter {
   private static final String LOG_TAG = ReactNativeEventStarter.class.getSimpleName();
   private final ReactNativeHost reactNativeHost;
   private final Context context;
+  private static final String CONTEXT_TITLE_SETTING = "CONTEXT_TITLE_SETTING";
+  private static final String CONTEXT_TEXT_SETTING = "CONTEXT_TEXT_SETTING";
+  private static final String SETTINGS_KEY = "Background_Job_Settings";
 
   ReactNativeEventStarter(@NonNull Context context) {
     this.context = context;
@@ -31,6 +35,10 @@ class ReactNativeEventStarter {
     Log.d(LOG_TAG, "trigger() called with: jobBundle = [" + jobBundle + "]");
     boolean appInForeground = Utils.isReactNativeAppInForeground(reactNativeHost);
     boolean allowExecutionInForeground = jobBundle.getBoolean("allowExecutionInForeground", false);
+    SharedPreferences.Editor editor = this.context.getSharedPreferences(SETTINGS_KEY, Context.MODE_PRIVATE).edit();
+    editor.putString(CONTEXT_TEXT_SETTING,jobBundle.getString("notificationText"));
+    editor.putString(CONTEXT_TITLE_SETTING, jobBundle.getString("notificationTitle"));
+    editor.apply();
     if (!appInForeground || allowExecutionInForeground) {
       // Will execute if the app is in background, or in forground but it has permision to do so
       MyHeadlessJsTaskService.start(context, jobBundle);
@@ -52,10 +60,14 @@ class ReactNativeEventStarter {
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_ID, NotificationManager.IMPORTANCE_LOW);
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
 
+        SharedPreferences preferences = mContext.getSharedPreferences(SETTINGS_KEY, MODE_PRIVATE);
+        String contextTitle = preferences.getString(CONTEXT_TITLE_SETTING, "Running in background...");
+        String contextText = preferences.getString(CONTEXT_TEXT_SETTING, "Background job");
+
         Notification notification =
                 new Notification.Builder(mContext, CHANNEL_ID)
-                        .setContentTitle("Running background job")
-                        .setContentText(mContext.getPackageName())
+                        .setContentTitle(contextTitle)
+                        .setContentText(contextText)
                         .setSmallIcon(R.drawable.ic_notification)
                         .build();
 

@@ -29,7 +29,7 @@
       "prettier --write",
       "git add"
     ],
-    "index.js": [
+    "./index.js": [
       "npm run document",
       "git add"
     ]
