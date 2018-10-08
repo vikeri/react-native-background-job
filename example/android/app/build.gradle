@@ -68,9 +68,16 @@ import com.android.build.OutputFile
 def ci = System.getenv('CI') == 'true';
 if (ci) {
     project.ext.react = [
-            bundleInDebug: true
+            bundleInDebug: true,
+            entryFile: "index.js"
     ]
+} else {
+
+project.ext.react = [
+    entryFile: "index.js"
+]
 }
+
 apply from: "../../node_modules/react-native/react.gradle"
 
 /**
@@ -111,12 +118,12 @@ def getPassword(String currentUser, String keyChain) {
     }
 }
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.backtest"
-        minSdkVersion 21
-        targetSdkVersion 25
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         ndk {
@@ -167,6 +174,7 @@ android {
 dependencies {
     compile project(':react-native-background-job')
     compile fileTree(dir: "libs", include: ["*.jar"])
+    compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     compile "com.facebook.react:react-native:+"  // From node_modules
 }
 
