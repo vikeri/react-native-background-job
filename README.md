@@ -56,14 +56,16 @@ or
 
 2.  Append the following lines to `android/settings.gradle`:
 
-
-    include ':react-native-background-job'
-    project(':react-native-background-job').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-background-job/android')
+```
+include ':react-native-background-job'
+project(':react-native-background-job').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-background-job/android')
+```
 
 3.  Insert the following lines inside the dependencies block in `android/app/build.gradle` and bump the minSdkVersion to 21:
 
-
-    compile project(':react-native-background-job')
+```
+compile project(':react-native-background-job')
+```
 
 ## Usage
 
@@ -124,8 +126,8 @@ This only has to be run once while `register` has to be run on each initializati
     -   `obj.exact` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things. (optional, default `false`)
     -   `obj.allowWhileIdle` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Allow the scheduled job to execute also while it is in doze mode. (optional, default `false`)
     -   `obj.allowExecutionInForeground` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Allow the scheduled job to be executed even when the app is in foreground. Use it only for short running jobs. (optional, default `false`)
-    -   `obj.notificationText` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** For Android SDK > 26, what should the notification text be (optional, default `"Running in background..."`)
-    -   `obj.notificationTitle` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** For Android SDK > 26, what should the notification title be (optional, default `"Background job"`)
+    -   `obj.notificationText` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** For Android SDK > 26, what should the notification text be (optional, default `Running in background...`)
+    -   `obj.notificationTitle` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** For Android SDK > 26, what should the notification title be (optional, default `Background job`)
 
 **Examples**
 
