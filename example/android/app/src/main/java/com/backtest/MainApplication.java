@@ -28,6 +28,11 @@ public class MainApplication extends Application implements ReactApplication {
             new BackgroundJobPackage()
       );
     }
+
+    @Override
+    protected String getJSMainModuleName() {
+      return "index";
+    }
   };
 
   @Override

@@ -82,6 +82,8 @@ export default class backtest extends Component {
           onPress={() => {
             BackgroundJob.schedule({
               jobKey: regularJobKey,
+              notificationTitle: "Notification title",
+              notificationText: "Notification text",
               period: 15000
             });
           }}
@@ -157,12 +159,12 @@ export default class backtest extends Component {
     );
   }
   componentDidMount() {
-    BackgroundJob.schedule({
-      jobKey: exactJobKey,
-      period: 1000,
-      timeout: 10000,
-      exact: true
-    });
+    // BackgroundJob.schedule({
+    //   jobKey: exactJobKey,
+    //   period: 1000,
+    //   timeout: 10000,
+    //   exact: true
+    // });
   }
 }
 

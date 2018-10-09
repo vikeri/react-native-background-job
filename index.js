@@ -70,6 +70,8 @@ const BackgroundJob = {
      * @param {boolean} [obj.requiresDeviceIdle = false] Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean))
      * @param {boolean} [obj.exact = false] Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things.
      * @param {boolean} [obj.allowWhileIdle=false] Allow the scheduled job to execute also while it is in doze mode.
+     * @param {string} [obj.notificationText="Running in background..."] For Android SDK > 26, what should the notification text be
+     * @param {string} [obj.notificationTitle="Background job"] For Android SDK > 26, what should the notification title be
      * @param {boolean} [obj.allowExecutionInForeground = false]  Allow the scheduled job to be executed even when the app is in foreground. Use it only for short running jobs.
      *
      * @example
@@ -99,7 +101,9 @@ const BackgroundJob = {
     requiresDeviceIdle = false,
     exact = false,
     allowWhileIdle = false,
-    allowExecutionInForeground = false
+    allowExecutionInForeground = false,
+    notificationText = "Running in background...",
+    notificationTitle = "Background job"
   }) {
     const savedJob = jobs[jobKey];
 
@@ -120,10 +124,12 @@ const BackgroundJob = {
         exact,
         allowWhileIdle,
         allowExecutionInForeground,
+        notificationTitle,
+        notificationText,
         scheduled => {
           console.log(
             `The job ${jobKey} was ${scheduled
-              ? "successfully" 
+              ? "successfully"
               : "unsuccessfully"} scheduled.`
           );
         }
