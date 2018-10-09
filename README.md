@@ -50,19 +50,20 @@ or
 #### Android
 
 1.  Open up `android/app/src/main/java/[...]/MainApplication.java`
+
     -   Add `import com.pilloxa.backgroundjob.BackgroundJobPackage;` to the imports at the top of the file.
     -   Add `new BackgroundJobPackage()` to the list returned by the `getPackages()` method.
 
 2.  Append the following lines to `android/settings.gradle`:
-```
-include ':react-native-background-job'
-project(':react-native-background-job').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-background-job/android')
-```
+
+
+    include ':react-native-background-job'
+    project(':react-native-background-job').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-background-job/android')
 
 3.  Insert the following lines inside the dependencies block in `android/app/build.gradle` and bump the minSdkVersion to 21:
-```
-compile project(':react-native-background-job')
-```
+
+
+    compile project(':react-native-background-job')
 
 ## Usage
 
@@ -86,9 +87,9 @@ It has to be scheduled by `schedule` to start running.
 
 **Parameters**
 
--   `obj` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
-    -   `obj.jobKey` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** A unique key for the job
-    -   `obj.job` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** The JS-function that will be run
+-   `obj` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+    -   `obj.jobKey` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** A unique key for the job
+    -   `obj.job` **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** The JS-function that will be run
 
 **Examples**
 
@@ -111,18 +112,20 @@ This only has to be run once while `register` has to be run on each initializati
 
 **Parameters**
 
--   `obj` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
-    -   `obj.jobKey` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** A unique key for the job that was used for registering, and be used for canceling in later stage.
-    -   `obj.timeout` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The amount of time (in ms) after which the React instance should be terminated regardless of whether the task has completed or not. (optional, default `2000`)
-    -   `obj.period` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The frequency to run the job with (in ms). This number is not exact, Android may modify it to save batteries. Note: For Android > N, the minimum is 900 0000 (15 min). (optional, default `900000`)
-    -   `obj.persist` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** If the job should persist over a device restart. (optional, default `true`)
-    -   `obj.override` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Whether this Job should replace pre-existing jobs with the same key. (optional, default `true`)
-    -   `obj.networkType` **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** Only run for specific network requirements. (optional, default `NETWORK_TYPE_NONE`)
-    -   `obj.requiresCharging` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean)) (optional, default `false`)
-    -   `obj.requiresDeviceIdle` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean)) (optional, default `false`)
-    -   `obj.exact` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things. (optional, default `false`)
-    -   `obj.allowWhileIdle` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Allow the scheduled job to execute also while it is in doze mode. (optional, default `false`)
-    -   `obj.allowExecutionInForeground` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Allow the scheduled job to be executed even when the app is in foreground. Use it only for short running jobs. (optional, default `false`)
+-   `obj` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+    -   `obj.jobKey` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** A unique key for the job that was used for registering, and be used for canceling in later stage.
+    -   `obj.timeout` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The amount of time (in ms) after which the React instance should be terminated regardless of whether the task has completed or not. (optional, default `2000`)
+    -   `obj.period` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The frequency to run the job with (in ms). This number is not exact, Android may modify it to save batteries. Note: For Android > N, the minimum is 900 0000 (15 min). (optional, default `900000`)
+    -   `obj.persist` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** If the job should persist over a device restart. (optional, default `true`)
+    -   `obj.override` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Whether this Job should replace pre-existing jobs with the same key. (optional, default `true`)
+    -   `obj.networkType` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Only run for specific network requirements. (optional, default `NETWORK_TYPE_NONE`)
+    -   `obj.requiresCharging` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when device is charging, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresCharging(boolean)) (optional, default `false`)
+    -   `obj.requiresDeviceIdle` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Only run job when the device is idle, (not respected by pre Android N devices) [docs](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html#setRequiresDeviceIdle(boolean)) (optional, default `false`)
+    -   `obj.exact` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Schedule an job to be triggered precisely at the provided period. Note that this is not power-efficient way of doing things. (optional, default `false`)
+    -   `obj.allowWhileIdle` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Allow the scheduled job to execute also while it is in doze mode. (optional, default `false`)
+    -   `obj.allowExecutionInForeground` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Allow the scheduled job to be executed even when the app is in foreground. Use it only for short running jobs. (optional, default `false`)
+    -   `obj.notificationText` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** For Android SDK > 26, what should the notification text be (optional, default `"Running in background..."`)
+    -   `obj.notificationTitle` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** For Android SDK > 26, what should the notification title be (optional, default `"Background job"`)
 
 **Examples**
 
@@ -149,8 +152,8 @@ Cancel a specific job
 
 **Parameters**
 
--   `obj` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
-    -   `obj.jobKey` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The unique key for the job
+-   `obj` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+    -   `obj.jobKey` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The unique key for the job
 
 **Examples**
 
@@ -178,7 +181,7 @@ Sets the global warning level
 
 **Parameters**
 
--   `warn` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
+-   `warn` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
 
 **Examples**
 
@@ -204,21 +207,6 @@ import BackgroundJob from 'react-native-background-job';
 BackgroundJob.isAppIgnoringBatteryOptimization((error,ignoringOptimization)=>{});
 ```
 
-## Debugging
-
-If you are using Android API +25 you can manually trigger the jobs by using the following command in a terminal:
-
-```sh
-$ adb shell cmd jobscheduler run -f your.package jobIntId
-```
-
-`jobIntId`: is the hashed `jobKey`. Get that value by going to [Java REPL](http://www.javarepl.com/term.html) and input:
-
-```java
-"yourJobKey".hashCode();
-// 1298333557
-```
-
 ## Troubleshooting
 
 ### `No task registered for key myJob`
@@ -237,7 +225,7 @@ This is an [Android issue](https://code.google.com/p/android/issues/detail?id=81
 
 ## Pull Request Details
 
-###Included function for checking if the app is ignoring battery optimizations. #62
+### Included function for checking if the app is ignoring battery optimizations. #62
 
 In Android SDK versions greater than 23, Doze is being used by apps by default, in order to optimize battery by temporarily turning off background tasks when the phone is left undisturbed for some hours.
 
