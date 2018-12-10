@@ -17,6 +17,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
+import java.lang.reflect.Field;
 
 class ReactNativeEventStarter {
   private static final String LOG_TAG = ReactNativeEventStarter.class.getSimpleName();
@@ -68,11 +69,28 @@ class ReactNativeEventStarter {
                 new Notification.Builder(mContext, CHANNEL_ID)
                         .setContentTitle(contextTitle)
                         .setContentText(contextText)
-                        .setSmallIcon(R.drawable.ic_notification)
+                        .setSmallIcon(setNotificationIcon())
                         .build();
 
         startForeground(1, notification);
       }
+    }
+
+    private int setNotificationIcon(){
+      String customNotificationIcon = "pilloxa_custom_notification";
+      Integer notificationIconReference = R.drawable.pilloxa_default_notification;
+
+      try {
+        Class<R.drawable> types = R.drawable.class;
+        Field field = types.getDeclaredField(customNotificationIcon);
+        field.setAccessible(true);
+        Object value = field.get(types);
+        notificationIconReference = (Integer) value;
+      } catch (Exception e) {
+        // Fallback to empty notification icons
+      }
+
+      return notificationIconReference;
     }
 
     @Nullable @Override protected HeadlessJsTaskConfig getTaskConfig(Intent intent) {

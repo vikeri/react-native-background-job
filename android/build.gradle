@@ -1,4 +1,17 @@
 buildscript {
+  def checkForCustomNotificationIcons = { ->
+    println("Checking for custom notification icons..")
+
+    exec {
+      ignoreExitValue true
+
+      workingDir file("${projectDir}").absolutePath
+      commandLine './checkForCustomNotificationIcons.sh', file("${buildDir}").absolutePath
+    }
+  }
+
+  checkForCustomNotificationIcons()
+
   repositories {
     jcenter()
   }
