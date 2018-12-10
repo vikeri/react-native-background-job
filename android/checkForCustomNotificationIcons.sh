@@ -7,18 +7,18 @@ ICON_NAME="pilloxa_custom_notification.png"
 # Creating symlinks for the notification icons
 #
 ln -s "${ROOT_DIR}/drawable-mdpi/${ICON_NAME}" \
-"${BUILD_DIR}/drawable-mdpi/${ICON_NAME}"
+"${BUILD_DIR}/drawable-mdpi/${ICON_NAME}" &>/dev/null
 
 ln -s "${ROOT_DIR}/drawable-hdpi/${ICON_NAME}" \
-"${BUILD_DIR}/drawable-hdpi/${ICON_NAME}"
+"${BUILD_DIR}/drawable-hdpi/${ICON_NAME}" &>/dev/null
 
 ln -s "${ROOT_DIR}/drawable-xhdpi/${ICON_NAME}" \
-"${BUILD_DIR}/drawable-xhdpi/${ICON_NAME}"
+"${BUILD_DIR}/drawable-xhdpi/${ICON_NAME}" &>/dev/null
 
 ln -s "${ROOT_DIR}/drawable-xxhdpi/${ICON_NAME}" \
-"${BUILD_DIR}/drawable-xxhdpi/${ICON_NAME}"
+"${BUILD_DIR}/drawable-xxhdpi/${ICON_NAME}" &>/dev/null
 
 # If the user has not any custom notification icons we remove the dangling symlinks
 # or else the build will fail
 #
-find -L "${BUILD_DIR}" -type l -delete
+find -L "${BUILD_DIR}" -type l -delete &>/dev/null
