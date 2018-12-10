@@ -6,7 +6,7 @@ buildscript {
       ignoreExitValue true
 
       workingDir file("${projectDir}").absolutePath
-      commandLine './checkForCustomNotificationIcons.sh', file("${buildDir}").absolutePath
+      commandLine './checkForCustomNotificationIcons.sh', file("${buildDir}").absolutePath, file("${rootDir}").absolutePath
     }
   }
 
