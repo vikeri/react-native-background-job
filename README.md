@@ -70,7 +70,7 @@ The jobs have to be registered each time React Native starts, this is done using
 Registering the job does not mean that the job is scheduled, it just informs React Native that this `job` function should be tied to this `jobKey`. The job is then scheduled using the `schedule` function. **By default, the job will not fire while the app is in the foreground**. This is since the job is run on the only JavaScript thread and if running the job when app is in the foreground it would freeze the app. By setting `allowExecutionInForeground` to `true` you allow this behavior. It is recommended that you do't use this, but for quick jobs should be fine.
 
 On SDK >= Oreo:
-Custom notification icons can be placed in your android/app/src/main/res directory. It should follow the naming ./res/drawable-(xxh|xh|h|m)dpi/pilloxa_custom_notification.png, otherwise the default blank icon will be placed while the background job is running.
+Custom notification icons can be placed in your android/app/src/main/res directory. It should follow the naming ./res/drawable-(xxh|xh|h|m)dpi/pilloxa_custom_notification.png, otherwise the default blank icon will be placed while the background job is running. [Check here for size and format guidelines.](https://developer.android.com/guide/practices/ui_guidelines/icon_design_status_bar#size11)
 
 For a full example check out [example/index.android.js](example/index.android.js)
 
