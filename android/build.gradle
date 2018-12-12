@@ -1,17 +1,4 @@
 buildscript {
-  def checkForCustomNotificationIcons = { ->
-    println("Checking for custom notification icons..")
-
-    exec {
-      ignoreExitValue true
-
-      workingDir file("${projectDir}").absolutePath
-      commandLine './checkForCustomNotificationIcons.sh', file("${buildDir}").absolutePath, file("${rootDir}").absolutePath
-    }
-  }
-
-  checkForCustomNotificationIcons()
-
   repositories {
     jcenter()
   }
@@ -58,4 +45,3 @@ dependencies {
   compile 'com.firebase:firebase-jobdispatcher:0.8.5'
   compile 'com.facebook.react:react-native:+'
 }
-  
