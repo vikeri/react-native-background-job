@@ -97,7 +97,7 @@ For a full example check out [example/index.android.js](example/index.android.js
 
 ### register
 
-[index.js:39-55](https://github.com/vikeri/react-native-background-job/blob/485726e4145bde08e62dec04790aa273dc864f6d/index.js#L39-L55 "Source code on GitHub")
+[index.js:39-55](https://github.com/vikeri/react-native-background-job/blob/ff0fe73675342c38e391093f64d9e25dafe6d4f2/index.js#L39-L55 "Source code on GitHub")
 
 Registers the job and the functions they should run.
 
@@ -126,7 +126,7 @@ BackgroundJob.register(backgroundJob);
 
 ### schedule
 
-[index.js:93-138](https://github.com/vikeri/react-native-background-job/blob/485726e4145bde08e62dec04790aa273dc864f6d/index.js#L93-L138 "Source code on GitHub")
+[index.js:95-142](https://github.com/vikeri/react-native-background-job/blob/ff0fe73675342c38e391093f64d9e25dafe6d4f2/index.js#L95-L142 "Source code on GitHub")
 
 Schedules a new job.
 
@@ -165,12 +165,14 @@ var backgroundSchedule = {
  jobKey: "myJob",
 }
 
-BackgroundJob.schedule(backgroundSchedule);
+BackgroundJob.schedule(backgroundSchedule)
+  .then(() => console.log("Success"))
+  .catch(err => console.err(err));
 ```
 
 ### cancel
 
-[index.js:150-158](https://github.com/vikeri/react-native-background-job/blob/485726e4145bde08e62dec04790aa273dc864f6d/index.js#L150-L158 "Source code on GitHub")
+[index.js:156-166](https://github.com/vikeri/react-native-background-job/blob/ff0fe73675342c38e391093f64d9e25dafe6d4f2/index.js#L156-L166 "Source code on GitHub")
 
 Cancel a specific job
 
@@ -184,12 +186,14 @@ Cancel a specific job
 ```javascript
 import BackgroundJob from 'react-native-background-job';
 
-BackgroundJob.cancel({jobKey: 'myJob'});
+BackgroundJob.cancel({jobKey: 'myJob'})
+  .then(() => console.log("Success"))
+  .catch(err => console.err(err));
 ```
 
 ### cancelAll
 
-[index.js:167-176](https://github.com/vikeri/react-native-background-job/blob/485726e4145bde08e62dec04790aa273dc864f6d/index.js#L167-L176 "Source code on GitHub")
+[index.js:177-187](https://github.com/vikeri/react-native-background-job/blob/ff0fe73675342c38e391093f64d9e25dafe6d4f2/index.js#L177-L187 "Source code on GitHub")
 
 Cancels all the scheduled jobs
 
@@ -198,12 +202,14 @@ Cancels all the scheduled jobs
 ```javascript
 import BackgroundJob from 'react-native-background-job';
 
-BackgroundJob.cancelAll();
+BackgroundJob.cancelAll()
+  .then(() => console.log("Success"))
+  .catch(err => console.err(err));
 ```
 
 ### setGlobalWarnings
 
-[index.js:188-190](https://github.com/vikeri/react-native-background-job/blob/485726e4145bde08e62dec04790aa273dc864f6d/index.js#L188-L190 "Source code on GitHub")
+[index.js:199-201](https://github.com/vikeri/react-native-background-job/blob/ff0fe73675342c38e391093f64d9e25dafe6d4f2/index.js#L199-L201 "Source code on GitHub")
 
 Sets the global warning level
 
@@ -221,7 +227,7 @@ BackgroundJob.setGlobalWarnings(false);
 
 ### isAppIgnoringBatteryOptimization
 
-[index.js:200-208](https://github.com/vikeri/react-native-background-job/blob/485726e4145bde08e62dec04790aa273dc864f6d/index.js#L200-L208 "Source code on GitHub")
+[index.js:213-229](https://github.com/vikeri/react-native-background-job/blob/ff0fe73675342c38e391093f64d9e25dafe6d4f2/index.js#L213-L229 "Source code on GitHub")
 
 Checks Whether app is optimising battery using Doze,returns Boolean.
 
@@ -234,7 +240,9 @@ Checks Whether app is optimising battery using Doze,returns Boolean.
 ```javascript
 import BackgroundJob from 'react-native-background-job';
 
-BackgroundJob.isAppIgnoringBatteryOptimization((error,ignoringOptimization)=>{});
+BackgroundJob.isAppIgnoringBatteryOptimization((err, isIgnoring) => console.log(`Callback: isIgnoring = ${isIgnoring}`))
+  .then(isIgnoring => console.log(`Promise: isIgnoring = ${isIgnoring}`))
+  .catch(err => console.err(err));
 ```
 
 ## Troubleshooting
