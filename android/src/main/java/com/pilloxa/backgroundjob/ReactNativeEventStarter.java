@@ -26,7 +26,7 @@ public class ReactNativeEventStarter {
   private static final String CONTEXT_TEXT_SETTING = "CONTEXT_TEXT_SETTING";
   private static final String SETTINGS_KEY = "Background_Job_Settings";
 
-  ReactNativeEventStarter(@NonNull Context context) {
+  public ReactNativeEventStarter(@NonNull Context context) {
     this.context = context;
     reactNativeHost = ((ReactApplication) context.getApplicationContext()).getReactNativeHost();
   }
