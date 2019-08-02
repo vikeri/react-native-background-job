@@ -18,7 +18,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 
-class ReactNativeEventStarter {
+public class ReactNativeEventStarter {
   private static final String LOG_TAG = ReactNativeEventStarter.class.getSimpleName();
   private final ReactNativeHost reactNativeHost;
   private final Context context;
