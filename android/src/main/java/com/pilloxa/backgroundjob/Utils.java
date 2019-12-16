@@ -1,6 +1,6 @@
 package com.pilloxa.backgroundjob;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.common.LifecycleState;

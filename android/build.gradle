@@ -1,17 +1,21 @@
 buildscript {
   repositories {
     jcenter()
+    maven {
+      url 'https://maven.google.com/'
+      name 'Google'
+    }
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:2.3.2'
+    classpath 'com.android.tools.build:gradle:3.5.1'
   }
 }
 
 apply plugin: 'com.android.library'
 
-def DEFAULT_COMPILE_SDK_VERSION = 27
-def DEFAULT_BUILD_TOOLS_VERSION = '25.0.3'
-def DEFAULT_TARGET_SDK_VERSION = 27
+def DEFAULT_COMPILE_SDK_VERSION = 28
+def DEFAULT_BUILD_TOOLS_VERSION = '28.0.3'
+def DEFAULT_TARGET_SDK_VERSION = 28
 
 android {
   compileSdkVersion project.hasProperty('compileSdkVersion') ? project.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
@@ -39,10 +43,15 @@ repositories {
     // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
     url "$rootDir/../node_modules/react-native/android"
   }
+  maven {
+    url 'https://maven.google.com/'
+    name 'Google'
+  }
 }
 
 dependencies {
-  compile 'com.firebase:firebase-jobdispatcher:0.8.5'
-  compile 'com.facebook.react:react-native:+'
+  implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
+  implementation 'com.facebook.react:react-native:+'
+  implementation 'androidx.annotation:annotation:1.1.0'
 }
   
