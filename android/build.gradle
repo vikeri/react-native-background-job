@@ -54,4 +54,3 @@ dependencies {
   implementation 'com.facebook.react:react-native:+'
   implementation 'androidx.annotation:annotation:1.1.0'
 }
-  

@@ -3,6 +3,7 @@ package com.pilloxa.backgroundjob;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
+import java.lang.reflect.Field;
 
 public class ReactNativeEventStarter {
   private static final String LOG_TAG = ReactNativeEventStarter.class.getSimpleName();
@@ -68,11 +70,26 @@ public class ReactNativeEventStarter {
                 new Notification.Builder(mContext, CHANNEL_ID)
                         .setContentTitle(contextTitle)
                         .setContentText(contextText)
-                        .setSmallIcon(R.drawable.ic_notification)
+                        .setSmallIcon(setNotificationIcon())
                         .build();
 
         startForeground(1, notification);
       }
+    }
+
+    private int setNotificationIcon(){
+      Context mContext = this.getApplicationContext();
+      int notificationIconReference = R.drawable.pilloxa_default_notification;
+      String customNotificationIcon = "pilloxa_custom_notification";
+      Resources res = mContext.getResources();
+      String packageName = mContext.getPackageName();
+
+      int customNotificationIconId = res.getIdentifier(customNotificationIcon, "drawable", packageName);
+      if(customNotificationIconId != 0){
+        notificationIconReference = customNotificationIconId;
+      }
+
+      return notificationIconReference;
     }
 
     @Nullable @Override protected HeadlessJsTaskConfig getTaskConfig(Intent intent) {
@@ -82,18 +99,18 @@ public class ReactNativeEventStarter {
       long timeout = extras.getLong("timeout", 2000);
       // For task with quick execution period additional check is required
       ReactNativeHost reactNativeHost =
-          ((ReactApplication) getApplicationContext()).getReactNativeHost();
+              ((ReactApplication) getApplicationContext()).getReactNativeHost();
       boolean appInForeground = Utils.isReactNativeAppInForeground(reactNativeHost);
       if (appInForeground && !allowExecutionInForeground) {
         return null;
       }
       return new HeadlessJsTaskConfig(intent.getStringExtra("jobKey"), Arguments.fromBundle(extras),
-          timeout, allowExecutionInForeground);
+              timeout, allowExecutionInForeground);
     }
 
     public static void start(Context context, Bundle jobBundle) {
       Log.d(LOG_TAG,
-          "start() called with: context = [" + context + "], jobBundle = [" + jobBundle + "]");
+              "start() called with: context = [" + context + "], jobBundle = [" + jobBundle + "]");
       Intent starter = new Intent(context, MyHeadlessJsTaskService.class);
       starter.putExtras(jobBundle);
 
